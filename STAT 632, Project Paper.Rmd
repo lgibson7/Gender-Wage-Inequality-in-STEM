@@ -1,0 +1,72 @@
+---
+title: "STAT 632, Project Paper Title"
+author: "Lydia Gibson, Sara Hatter & Ken Vu"
+date: '2022-04-10'
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+---
+
+# Introduction
+
+## Research Question:
+
+## Goals: 
+
+# Data Description
+
+The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM).  For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e. Engineering, Health Science, etc), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information.
+
+## Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
+
+# Variables
+
+## Dimensions: 
+- $76 \space rows \times 9 \space columns$
+
+## Response Variable: 
+
+- `Median`: Median earnings of full-time, year-round workers
+
+## Predictor Variable
+
+- `Rank`: Rank by median earnings
+
+- `Major_code`: Major code, FO1DP in ACS PUMS
+
+- `Major`: Major description
+
+- `Major_category`: Category of major from Carnevale et al
+
+- `Total`: Total number of people with major
+
+- `Men`: Male graduates
+
+- `Women`:Female graduates
+
+- `ShareWomen`: Women as share of total
+
+
+
+
+
+
+
+# Methods and Results
+
+# Conclusion
+
+In conclusion
+
+- Point 1
+
+- Point 1
+
+- Point 1
+
+
+# Code Appendix
+
+For supplementary R script, visit 
+
+- https://github.com/lgibson7/repo_name

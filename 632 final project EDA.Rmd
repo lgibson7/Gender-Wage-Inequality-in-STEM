@@ -1,0 +1,121 @@
+---
+title: "Project EDA"
+author: "Lydia Gibson"
+date: '2022-03-27'
+output: pdf_document
+---
+
+
+
+```{r}
+stem<-read.csv(url("https://raw.githubusercontent.com/lgibson7/data/master/college-majors/women-stem.csv"))
+options(scipen = 100) #surpress scientific notation
+head(stem)
+
+```
+
+
+
+```{r}
+dim(stem)
+```
+
+
+```{r}
+stem$fMajor_category<-as.factor(stem$Major_category) #set major category as a factor
+head(stem) #view first 6 rows of data
+
+```
+
+```{r}
+levels(stem$fMajor_category) 
+```
+
+```{r}
+stem2<-stem[,-c(2:3)] #remove major code and major and create new dataset stem2
+head(stem2) #view first 6 rows of new dataset
+```
+```{r}
+dim(stem2)
+```
+
+
+```{r}
+#change predictors into numerics
+for (i in colnames(stem2[,c(1:8)])){stem2[[i]] <- as.numeric(stem2[[i]])}
+head(stem2)
+```
+
+```{r}
+#summary statistics for all predictors
+summary(stem2)
+```
+
+
+```{r}
+#scatter plot matrix for median salary
+pairs(Median~.,data=stem2[,-c(1:2)])
+```
+
+```{r}
+MedSal<-stem2$Median #create object median salary
+hist(MedSal) #plot histogram of median salary
+```
+
+```{r}
+qqnorm(MedSal)
+qqline(MedSal)
+```
+
+
+
+```{r}
+hist(log(MedSal)) #plot histohram of log(median salary) because of skewness
+```
+
+```{r}
+qqnorm(log(MedSal))
+qqline(log(MedSal))
+```
+
+```{r}
+qqnorm(log(MedSal))
+qqline(log(MedSal))
+```
+
+
+
+```{r}
+#scatterplot matrix of log(median salary)
+pairs(log(Median)~.,data=stem2[,-c(1:2)]) 
+```
+
+```{r}
+lmstem<-lm(log(Median)~., data=stem2[,-c(1:2)])
+summary(lmstem)
+```
+
+```{r}
+par(mfrow = c(2,2))
+plot(lmstem)
+```
+
+
+```{r}
+boxplot(log(Median)~fMajor_category,data=stem2)
+```
+
+```{r}
+plot(log(Median)~ShareWomen,data=stem2)
+```
+
+
+```{r}
+anova(lmstem)
+```
+
+
+```{r}
+lmstem2<-step(lmstem)
+```
+
