@@ -1,0 +1,335 @@
+---
+title: "STAT 632_project"
+author: "Ken Vu"
+date: "3/23/2022"
+output: pdf_document
+---
+
+```{r}
+library(pacman)
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest))
+options(scipen = 100) # remove scientific notation
+```
+
+# STEP 1: Consider a research question 
+QUESTION - How do each of the predictors in the data set affect the median salary
+of those majoring in STEM?
+QUESTION - Let's look at those with higher share of women vs those with lower
+share of women?
+
+# STEP 2 - Load and explore the data
+## Prepare the data
+Documentation at https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-10-16
+```{r}
+dat1 <- read.csv("women-stem.csv")
+head(dat1)
+```
+
+Get the dimensions of the data set
+```{r}
+dim(dat1)
+```
+
+
+We'll remove the columns "Major_code","Rank", "Major" as they aren't relevant or 
+usable for our analysis.
+```{r}
+dat2 <- dat1[,-c(1,2,3)] # remove Major_code, Rank
+head(dat2)
+colnames(dat2)
+```
+
+Fix major category as a factor for data analysis reasons.
+```{r}
+dat2$Major_category <- as.factor(dat2$Major_category)
+#for (i in colnames(dat2[,c(1,4:8)])){
+#  dat2[[i]] <- as.numeric(dat2[[i]])
+#}
+```
+
+Viewing portion of data set
+```{r}
+head(dat2)
+```
+
+
+## Exploratory Data Analysis
+Let's do a scatterplot matrix.
+```{r}
+pairs(Median~., data=dat2[,-c(1)])
+```
+
+I notice that as there are more women in a field, the median salary goes down.
+- Could there be bias against women that might lead to women being underpaid?
+- Conclusion: Share Women relationship and Median salary going down?  Why?
+
+Some collinearity between Total and Men as men is part of the Total.
+
+### Histograms of Data
+Let's check distribution of ShareWomen.
+```{r}
+dat2 %>% ggplot(mapping=aes(x=ShareWomen)) + geom_histogram(binwidth=0.1) + 
+  geom_density(aes(y=..density.. * (nrow(dat2) * 0.1)), color="red") 
+# right skewed data
+```
+
+Seems very right skewed
+
+Let's check distribution of Median.
+```{r}
+dat2 %>% ggplot(mapping=aes(x=(Median))) + geom_histogram(bin.width=5000) + 
+  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red")
+# right skewed data
+```
+
+Not too great so let's see if we can transform this data.  
+```{r}
+lm_full <- lm(Median~.,data=dat2)
+boxcox(lm_full, lambda=seq(0.3, 0.65, by =0.05))
+summary(powerTransform(lm_full))
+```
+
+Our rounded power is -1 so we wouldn't need to transform the data.  Also, -1 as 
+a power would make the data difficult to interpret.
+
+
+### Summary Statistics - General
+Getting summary statistics for the data
+```{r}
+summary(dat2)
+```
+
+Let's get all of the names of the unique major categories
+```{r}
+unique(dat2$Major_category)
+```
+
+### Analysis - Share of Women
+INTERESTING: See share of women per major category.
+- Add up all of the women 
+```{r}
+# Get totals for men and women for each major category
+dat_stats <- rbind(
+  
+  # Get totals for men
+  dat2 %>% group_by(Major_category) %>% 
+  summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>% 
+    mutate(Sex="Men"),
+  
+  # Get totals for women
+  dat2 %>% group_by(Major_category) %>% 
+  summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>% 
+    mutate(Sex="Women")
+)
+dat_stats
+```
+
+Let's look at a bar chart with proportion of men and women per major category
+```{r}
+dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
+  stat_summary(geom = "bar", position="dodge") +  # stack side by side bars 
+  # Get labels for bars
+  geom_text(aes(label=percent(Proportion)), position = position_dodge(width=.9),
+            vjust=-1, size=3) + 
+  theme(axis.text.x=element_text(angle = 7.5),  # get x axes labels to fit
+        plot.title=element_text(size=17, hjust=0.5)) + # center title
+  scale_y_continuous(limits=c(0, 4.25*10^(5))) + # increase size to fit labels
+  labs(x="Major Category", y="Number of People",
+       title="Major Category Proportions by Sex")
+```
+
+Interesting.
+It seems that we see women in more fields dealing with healthcare.  For men, they seem
+to tend to be more dominant in more technical and abstract fields (i.e. the
+formal sciences).
+
+The ratio of men to women seems more balanced in natural sciences (i.e bio,
+physical).  I wonder why...
+
+Let's look at those with the highest share of women.
+```{r}
+dat2 %>% arrange(desc(ShareWomen)) %>% slice(1:5)
+```
+
+Interesting. A lot of women in health-related fields.
+
+Now, let's look at those with the lowest share of women.
+```{r}
+dat2 %>% arrange(ShareWomen) %>% slice(1:5)
+```
+
+-Interesting.  We expect the lowest share of women to be mostly enginering 
+related degrees.
+
+What about around the 50% mark where we expect the share of women to be balanced?
+```{r}
+dat2 %>% arrange(ShareWomen) %>% filter(ShareWomen > 0.45, ShareWomen < 0.55)
+```
+
+Not really any serious trends here, but it seems the non-Engineering and 
+non-Health related majors tend to have a more balanced ratio of men to
+women.  The natural sciences tend to be balanced.
+
+Also, stats represents! 
+
+### Analysis - Median Salary
+Let's look at those with the highest salaries
+```{r}
+dat2 %>% arrange(desc(Median)) %>% slice(1:5)
+```
+
+Now, let's look at those with the lowest median salary.
+```{r}
+dat2 %>% arrange(ShareWomen) %>% slice(1:5)
+```
+
+They both don't have a large proportion of women in those fields.  Good
+opportunity to explore here as well.
+
+Let's look at middle portion of data when sorting Median salary
+```{r}
+mid_start <- round((nrow(dat2)-5)/2)
+dat2 %>% arrange(desc(ShareWomen)) %>% slice(mid_start:(mid_start+4))
+```
+
+### Boxplots 
+Lastly, let's check out the boxplot of major category.
+```{r}
+dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() + 
+  labs(x="Major Category", y="Median Salary ($)", 
+       title = "Median Salary by Major Category") + 
+  theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+        plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
+```
+
+Also, see the boxplot of ShareWomen by major category.
+```{r}
+dat2 %>% ggplot(aes(x=Major_category, y=ShareWomen)) + geom_boxplot() + 
+  labs(x="Major Category", y="Proportion of Women (%)", 
+       title="Proportion of Women by Major Category") +
+  theme(axis.text.x=element_text(angle=7.5), 
+        plot.title=element_text(size=17, hjust=0.5))
+```
+
+We can see that generally, we tend to see higher proportions of women in the
+health field in general with Engineering generally having the lowest 
+proportions of women in that field (which confirms observations made in
+the Major Proportions by Sex plot earlier).
+
+# STEP 3 - Fit the model
+Run model on data set.  We will remove Total because of high
+correlation with the variable "Men".  (see pairs, multicollinearity).
+```{r}
+head(dat2)
+```
+
+```{r}
+lm1 <- lm(log(Median) ~(.)^2, data=dat2[-c(2)])
+summary(lm1)
+```
+
+Do step-wise function to find best model (one with lowest AIC)
+```{r}
+lm2 <- step(lm1)
+summary(lm2)
+```
+
+Do partial F-test to see if we can remove Women from data.
+```{r}
+lm_reduced <- lm(log(Median) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
+                 data=dat2[-c(2)])
+anova(lm_reduced, lm2)
+```
+
+Write the hypothesis that null is that coefficient for Women is 0, which we
+fail to reject.
+
+```{r}
+summary(lm_reduced)
+```
+
+Given $R^2=0.5213$, about 52.13% of the variability in the median salary can be explained by the chosen predictors.  However, the model could certainly perform slightly better and
+may not be entirely reliable, as we'll see in the diagnostics plots below.
+
+# STEP 4 - Check the model's performance
+## Model Diagnostics 
+Let's look at the QQ plot and the residual plot simultaneously
+```{r}
+# Standardized Residual vs Fitted plot
+stdresid_plt <- ggplot(mapping=aes(x=lm_reduced$fitted.values, 
+                                   y=rstandard(lm_reduced))) + 
+  geom_point() + labs(x="Fitted Values", y="Standardized Residuals") + 
+  geom_hline(yintercept=0) + labs(title="Residuals vs Fitted") + 
+  theme(plot.title = element_text(, size=17, hjust = 0.5)) + geom_smooth(se=F)
+
+# Normal QQ_plot
+norm_qqplt <- ggplot(mapping=aes(sample=rstandard(lm_reduced))) + stat_qq() + 
+  stat_qq_line() + labs(y="Sample Quantitles", x="Theoretical Quantiles",
+                       title="Normal Q-Q Plot") + 
+  theme(plot.title = element_text(size=17, hjust = 0.5))
+
+# Display the results
+ggarrange(stdresid_plt, norm_qqplt, ncol=2)
+```
+
+For the residual plot, the assumption of constant variance seems to hold up
+fairly well.  There is no discernible relationship between the standardized 
+residuals and predicted values.
+
+Let's verify with a numerical test.  Given the p-value, we fail to reject 
+the null hypothesis that there's homoskedasticity in the data.
+```{r}
+bptest(lm_reduced)
+```
+
+
+As for the Normal Q-Q Plot, the standardized residuals seem to follow along
+the normal line, although the tail ends of the data distribution do deviate
+significantly from the normal line.  Thus, we do have some violation of
+the assumption of normally distributed residuals here.
+
+Let's check with a numeric test.  We reject the null hypothesis that the residuals
+follow a normal distribution.
+```{r}
+shapiro.test(rstandard(lm_reduced))
+```
+
+
+## High Leverage Analysis
+Let's look at points with high leverage or high standard residuals.  We got 
+four predictors so p = 4.
+```{r}
+# get number of coefficients and subtract 1 as intercept doesn't count
+p = length(lm_reduced$coefficients)-1 
+h_cutoff <- 2*(p+1)/nrow(dat2) # get cutoff point
+
+# Residuals vs hat values
+ggplot(mapping=aes(x=hatvalues(lm_reduced), y=rstandard(lm_reduced))) + 
+  geom_point() + geom_vline(xintercept = h_cutoff) + xlab("Leverage") + 
+  ylab("Standardized Residuals") + ggtitle("Standardized Residuals vs Leverage") +
+  theme(plot.title=element_text(hjust=0.5))
+
+```
+
+Find any points with high leverage
+```{r}
+dat1[which(hatvalues(lm_reduced) > h_cutoff),]
+```
+
+
+Find any point with high residuals
+```{r}
+dat1[which(abs(rstandard(lm_reduced)) > 2),]
+```
+
+Looking at the table above, it looks like "Petroleum Engineering",
+"Mechanical Engineering Related Technologies" and
+"Astronomy and Astrophysics" are the major outliers.  The share of women 
+in petroleum Engineering is low, but the median salary is quite large.
+
+Interestingly, mechanical engineering related technologies has less women, but a 
+low median salary.  Physics has more women and a milder salary.
+
+Perhaps, sex may not be too relevant here as you may also have to consider the
+unemployment rates, the number of college jobs, etc.
+
