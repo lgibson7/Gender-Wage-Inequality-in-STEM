@@ -1,0 +1,42 @@
+---
+title: "Gender Wage Inequality in STEM"
+author: "Lydia Gibson, Sara Hatter & Ken Vu"
+date: "April 28, 2022"
+output: pdf_document
+---
+
+
+Final Project
+
+STAT 632: Linear and Logistic Regression
+
+California State University, East Bay
+
+Spring 2022
+
+
+\break
+
+# Introduction. 
+
+* Describe the main research questions and goals of your data analysis and statistical modeling. 1-2 paragraphs should be sufficient.
+
+# Data Description. 
+
+* Briefly describe your data. What is the source? What are the response and potential predictor variables? What is the dimension (number of rows and columns)? In this section, also present and discuss relevant summary statistics and graphical displays of your data set (e.g., scatterplots, box plots). Be selective about the descriptive statistics that you decide to include.
+
+# Methods and Results. 
+
+* Describe the methods used to estimate and select your regression model, and present the major modeling results (e.g., regression sum- mary table, diagnostics plots, cross-validation results). Provide a concise description of the results and your interpretation.
+
+# Conclusion. 
+
+* Summarize the major conclusions and findings of your regression analysis. In this section, you can also provide ideas for future work.
+
+\break
+
+# Bibliography
+
+## Code Appendix. 
+
+For supplementary R script, visit https://github.com/lgibson7/Gender-Wage-Inequality-in-STEM

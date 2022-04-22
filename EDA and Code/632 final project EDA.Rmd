@@ -1,5 +1,5 @@
 ---
-title: "Project EDA"
+title: "Gender Wage Inequality in STEM ()"
 author: "Lydia Gibson"
 date: '2022-03-27'
 output: pdf_document

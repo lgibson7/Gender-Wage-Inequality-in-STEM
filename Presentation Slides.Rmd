@@ -1,7 +1,7 @@
 ---
-title: "STAT 632, Project Paper Title"
+title: "Gender Wage Inequality in STEM"
 author: "Lydia Gibson, Sara Hatter & Ken Vu"
-date: '2022-04-10'
+date: 'April 28, 2022'
 output:
   beamer_presentation: default
   ioslides_presentation: default
