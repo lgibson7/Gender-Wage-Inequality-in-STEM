@@ -1,4 +1,4 @@
-# Gender-Wage-Inequality-in-STEM
+# Gender Wage Inequality in STEM
 
 This repo contains code that predicts wages of STEM careers based on the proportion of women in the field.
 
