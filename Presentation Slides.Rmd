@@ -9,26 +9,62 @@ output:
 
 # Introduction
 
-## Research Question:
+```{r echo=FALSE}
+dat1 <- read.csv("women-stem.csv")
+library(pacman)
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest))
+options(scipen = 100) # remove scientific notation
+```
+
+```{r echo=FALSE}
+dat2 <- dat1[,-c(1,2,3)] # remove Major_code, Rank
+#head(dat2)
+#colnames(dat2)
+```
+
+```{r echo=FALSE}
+#set major category as a factor
+dat2$Major_category <- as.factor(dat2$Major_category)
+#for (i in colnames(dat2[,c(1,4:8)])){
+#  dat2[[i]] <- as.numeric(dat2[[i]])
+#}
+```
+
+
+## Research Question: 
+
+What associations exist within STEM college majors that have an effect on median wages?
 
 ## Goals: 
+
+* To explore the data for STEM college majors.
+* To create a predictive model for median wage.
 
 # Data Description
 
 The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM).  For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e. Engineering, Health Science, etc), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information.
 
-## Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
+# Data set
+
+The dimensions of the data set are 76 rows by 9 columns.
+
+```{r echo=FALSE}
+head(dat1, n=3)
+
+```
+* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
+
+# Last 3 rows of data
+
+```{r echo=FALSE}
+tail(dat1, n=3)
+```
+
+* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
 # Variables
 
-## Dimensions: 
-- $76 \space rows \times 9 \space columns$
-
-## Response Variable: 
-
-- `Median`: Median earnings of full-time, year-round workers
-
-## Predictor Variable
+We chose `Median`: Median earnings of full-time, year-round workers as our response variable and our predictor variables are:
 
 - `Rank`: Rank by median earnings
 
@@ -46,13 +82,95 @@ The data was obtained from the American Community Survey 2010-2012 Public Use Mi
 
 - `ShareWomen`: Women as share of total
 
+# Methods and Results: EDA
+
+Within the STEM majors, median wage ranged from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering. 
+
+```{r echo=FALSE}
+summary(dat2$Median)
+```
 
 
+Each individual major within the data set is further categorized into one of five major categories:
+
+* Biology & Life Sciences
+
+* Computers & Mathematics
+
+* Engineering
+
+* Health
+
+* Physical Sciences
 
 
+# Median Wage by Major Category
+
+```{r echo=FALSE}
+boxplot(Median~Major_category,data=dat2)
+```
+
+# Test differences between major categories
+
+Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis.
+
+```{r}
+# anova of major categories
+```
 
 
-# Methods and Results
+# Share Women by Major Category
+
+During our exploratory data analysis we noticed an interesting association between share of women within a given major category.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+# Get totals for men and women for each major category
+dat_stats <- rbind(
+  
+  # Get totals for men
+  dat2 %>% group_by(Major_category) %>% 
+  summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>% 
+    mutate(Sex="Men"),
+  
+  # Get totals for women
+  dat2 %>% group_by(Major_category) %>% 
+  summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>% 
+    mutate(Sex="Women")
+)
+#dat_stats
+
+dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
+  stat_summary(geom = "bar", position="dodge") +  # stack side by side bars 
+  # Get labels for bars
+  geom_text(aes(label=percent(Proportion)), position = position_dodge(width=.9),
+            vjust=-1, size=3) + 
+  theme(axis.text.x=element_text(angle = 7.5),  # get x axes labels to fit
+        plot.title=element_text(size=17, hjust=0.5)) + # center title
+  scale_y_continuous(limits=c(0, 4.25*10^(5))) + # increase size to fit labels
+  labs(x="Major Category", y="Number of People",
+       title="Major Category Proportions by Sex")
+```
+
+# Checking Assumptions
+
+Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. We notices that there was some skewing, so we decided to do a log transformation.
+
+```{r}
+#test normality of median
+
+```
+
+
+# Scaterplot Matrix
+
+```{r echo=FALSE}
+pairs(log(Median)~., data=dat2[,-c(1)])
+```
+
+# Remove variables from Model
+
+As noticed in our scatterplot matrix, there may be an issues with multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we ran some analysis to see which of these predictors could be removed from our model.
 
 # Conclusion
 
@@ -69,4 +187,4 @@ In conclusion
 
 For supplementary R script, visit 
 
-- https://github.com/lgibson7/repo_name
+- https://github.com/lgibson7/Gender-Wage-Inequality-in-STEM
