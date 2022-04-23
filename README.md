@@ -1,17 +1,21 @@
 # Gender Wage Inequality in STEM
 
-This repo contains code that predicts wages of STEM careers based on the proportion of women in the field.
+Do we choose our career path based on gender-based social roles or based on top salary? Although many countries, such as China, have incorporated women into their labor power to become a powerful economy$^1$, women still choose careers that are more in sync to gender stereotype. 
 
-# Problem
+Undoubtedly, personality characteristics associated with women, are sympathy, kindness, and warmth, and reflect a concern about other people. However, the traits associated to men are achievement orientation and ambitiousness, and concern about accomplishing tasks. These characteristics are very noticeable in the stereotypical association of men in the worker role and women in the family role$^2$. 
 
-Gender wage inequality between women and men is pervasive, even within STEM.
+More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
+
+# Research Goals
+
+Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
 
 # Dataset Used
 
-To address this problem, we used the College Majors dataset from fivethirthyeight, found here: https://github.com/fivethirtyeight/data/tree/master/college-majors
+To address this problem, we used a subset of the College Majors dataset from fivethirthyeight, found here: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
 # Tools Used
 
-* Tidyverse
-* ....
-* ....
+* Tidyverse: dplyr, ggplot2
+* Statistical Tests: Box-Cox, Step-wise selection, Shapiro-Wilks 
+* Analyses: ANOVA
