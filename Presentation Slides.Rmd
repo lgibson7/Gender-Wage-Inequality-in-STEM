@@ -16,21 +16,6 @@ suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest))
 options(scipen = 100) # remove scientific notation
 ```
 
-```{r echo=FALSE}
-dat2 <- dat1[,-c(1,2,3)] # remove Major_code, Rank
-#head(dat2)
-#colnames(dat2)
-```
-
-```{r echo=FALSE}
-#set major category as a factor
-dat2$Major_category <- as.factor(dat2$Major_category)
-#for (i in colnames(dat2[,c(1,4:8)])){
-#  dat2[[i]] <- as.numeric(dat2[[i]])
-#}
-```
-
-
 Do we choose our career path based on gender-based social roles or based on top
 salary? Although many countries, such as China, have incorporated women into their labor power to become a powerful economy$^1$, women still choose careers that are more in sync to gender stereotype. 
 
@@ -55,6 +40,7 @@ What associations exist within STEM college majors that have an effect on median
 # Data Description
 
 The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM).  For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e. Engineering, Health Science, etc), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information.
+
 
 # Data set
 
@@ -87,50 +73,48 @@ We chose `Median`: Median earnings of full-time, year-round workers as our respo
 
 - `ShareWomen`: Women as share of total
 
-# Last 3 rows of data
-
-```{r echo=FALSE, size="tiny"}
-tail(dat1, n=3)
-```
-
-* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
-
 
 # Exploratory Data Analysis
 
-Within the STEM majors, median wage ranged from $\$26,000$ for Zoology to $\$110,000$ for Petroleum Engineering. 
+
+* Instead of looking at individual `Major`, we have set `Major_category` as a factor with the following levels:
+
+```{r echo=FALSE}
+# remove Rank, Major_code, and Major
+dat2 <- dat1[,-c(1,2,3)] 
+
+#set major category as a factor
+dat2$Major_category <- as.factor(dat2$Major_category)
+levels(dat2$Major_category)
+```
+
+
+* For our analysis, we also removed the columns `Major_code` and `Rank`  as they aren’t relevant predictors for our purposes.
+
+```{r echo=FALSE, size="tiny"}
+head(dat2, n=1)
+
+```
+
+* Within the STEM `Majors`, median wage ranged from $\$26,000$ for Zoology to $\$110,000$ for Petroleum Engineering. 
 
 ```{r echo=FALSE}
 summary(dat2$Median)
 ```
 
 
-Each individual major within the data set is further categorized into one of five major categories:
 
-* Biology & Life Sciences
-
-* Computers & Mathematics
-
-* Engineering
-
-* Health
-
-* Physical Sciences
-
-
-# Median Wage by Major Category
+# Scaterplot Matrix
 
 ```{r echo=FALSE}
-boxplot(Median~Major_category,data=dat2)
+pairs(Median~., data=dat2[,-c(1)])
 ```
 
-# Test differences between major categories
+# Scatterplot Matrix Insights
 
-Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis.
+* There seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
 
-```{r}
-# anova of major categories
-```
+* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
 
 # Share Women by Major Category
@@ -166,12 +150,42 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
        title="Major Category Proportions by Sex")
 ```
 
+# Median Wage by Major Category
+
+```{r echo=FALSE}
+boxplot(Median~Major_category,data=dat2)
+```
+
+
+# Test differences between major categories
+
+Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis.
+
+```{r}
+# anova of major categories
+```
+
+
+
+# Multicollinearity
+
+```{r}
+# test for multicollinearity
+```
+
+
 
 # Methods and Results: Checking Assumptions
 
-Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
+Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. 
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ dat2 %>% ggplot(mapping=aes(x=(Median))) + geom_histogram(bin.width=5000) +
+  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red")
+```
+
+
+```{r echo=FALSE, include=FALSE}
 #test normality of median
 MedSal<-dat2$Median #create object median salary 
 par(mfrow=c(1,2))
@@ -185,40 +199,35 @@ qqline(MedSal)
 
 # Box Cox
 
-```{r}
-
-```
-
-
-# Log transformation
-
+We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
 
 ```{r echo=FALSE}
+ lm_full <- lm(Median~.,data=dat2)
+boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
+```
+#
+
+```{r echo=FALSE}
+summary(powerTransform(lm_full))
+```
+
+Our rounded power is -1 so we wouldn’t need to transform the data. Also, -1 as a power would make the data difficult to interpret.
+
+# Log transformation?
+
+
+```{r echo=FALSE, include=FALSE}
 par(mfrow=c(1,2))
 hist(log(MedSal))
 qqnorm(log(MedSal))
 qqline(log(MedSal))
 ```
 
-# Remove Variables
 
-For our analysis, we removed the columns “Major_code”,“Rank”, “Major” as they aren’t relevant or usable for our purposes.
+# Building Predicitive Model
 
-```{r echo=FALSE, size="tiny"}
-head(dat2)
+# Cross Validation
 
-```
-
-
-# Scaterplot Matrix
-
-```{r echo=FALSE}
-pairs(log(Median)~., data=dat2[,-c(1)])
-```
-
-# Multicollinearity
-
-As noticed in our scatterplot matrix, there may be an issues with multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we ran some analysis to see which of these predictors could be removed from our model.
 
 # Conclusion
 
