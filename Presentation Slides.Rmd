@@ -31,6 +31,18 @@ dat2$Major_category <- as.factor(dat2$Major_category)
 ```
 
 
+Do we choose our career path based on gender-based social roles or based on top
+salary? Although many countries, such as China, have incorporated women into their labor power to become a powerful economy$^1$, women still choose careers that are more in sync to gender stereotype. 
+
+Undoubtedly, personality characteristics associated with women, are sympathy, kindness, and warmth, and reflect a concern about other people. However, the traits associated to men are achievement orientation and ambitiousness, and concern about accomplishing tasks. These characteristics are very noticeable in the stereotypical association of men in the worker role and women in the family role$^2$. 
+
+More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
+
+# Introduction cont.
+
+Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
+
+
 ## Research Question: 
 
 What associations exist within STEM college majors that have an effect on median wages?
@@ -48,7 +60,7 @@ The data was obtained from the American Community Survey 2010-2012 Public Use Mi
 
 The dimensions of the data set are 76 rows by 9 columns.
 
-```{r echo=FALSE}
+```{r echo=FALSE, size="tiny"}
 head(dat1, n=3)
 
 ```
@@ -56,7 +68,7 @@ head(dat1, n=3)
 
 # Last 3 rows of data
 
-```{r echo=FALSE}
+```{r echo=FALSE, size="tiny"}
 tail(dat1, n=3)
 ```
 
@@ -64,7 +76,7 @@ tail(dat1, n=3)
 
 # Variables
 
-We chose `Median`: Median earnings of full-time, year-round workers as our response variable and our predictor variables are:
+We chose `Median`: Median earnings of full-time, year-round workers as our response variable and our *potential* predictor variables are:
 
 - `Rank`: Rank by median earnings
 
@@ -84,7 +96,7 @@ We chose `Median`: Median earnings of full-time, year-round workers as our respo
 
 # Methods and Results: EDA
 
-Within the STEM majors, median wage ranged from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering. 
+Within the STEM majors, median wage ranged from $\$26,000$ for Zoology to $\$110,000$ for Petroleum Engineering. 
 
 ```{r echo=FALSE}
 summary(dat2$Median)
@@ -154,10 +166,43 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
 
 # Checking Assumptions
 
-Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. We notices that there was some skewing, so we decided to do a log transformation.
+Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
+
+```{r echo=FALSE}
+#test normality of median
+MedSal<-dat2$Median #create object median salary 
+par(mfrow=c(1,2))
+hist(MedSal)
+qqnorm(MedSal)
+qqline(MedSal)
+
+```
+
+
+
+# Box Cox
 
 ```{r}
-#test normality of median
+
+```
+
+
+# Log transformation
+
+
+```{r echo=FALSE}
+par(mfrow=c(1,2))
+hist(log(MedSal))
+qqnorm(log(MedSal))
+qqline(log(MedSal))
+```
+
+# Remove Variables
+
+For our analysis, we removed the columns “Major_code”,“Rank”, “Major” as they aren’t relevant or usable for our purposes.
+
+```{r echo=FALSE, size="tiny"}
+head(dat2)
 
 ```
 
@@ -168,7 +213,7 @@ Before beginning our analysis, we began by exploring the normality within our re
 pairs(log(Median)~., data=dat2[,-c(1)])
 ```
 
-# Remove variables from Model
+# Multicollinearity
 
 As noticed in our scatterplot matrix, there may be an issues with multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we ran some analysis to see which of these predictors could be removed from our model.
 
