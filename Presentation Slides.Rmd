@@ -66,13 +66,6 @@ head(dat1, n=3)
 ```
 * Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
-# Last 3 rows of data
-
-```{r echo=FALSE, size="tiny"}
-tail(dat1, n=3)
-```
-
-* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
 # Variables
 
@@ -94,7 +87,16 @@ We chose `Median`: Median earnings of full-time, year-round workers as our respo
 
 - `ShareWomen`: Women as share of total
 
-# Methods and Results: EDA
+# Last 3 rows of data
+
+```{r echo=FALSE, size="tiny"}
+tail(dat1, n=3)
+```
+
+* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
+
+
+# Exploratory Data Analysis
 
 Within the STEM majors, median wage ranged from $\$26,000$ for Zoology to $\$110,000$ for Petroleum Engineering. 
 
@@ -164,7 +166,8 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
        title="Major Category Proportions by Sex")
 ```
 
-# Checking Assumptions
+
+# Methods and Results: Checking Assumptions
 
 Before beginning our analysis, we began by exploring the normality within our response variable, `Median`. We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
 
@@ -226,6 +229,9 @@ In conclusion
 - Point 1
 
 - Point 1
+
+# Bibliography
+
 
 
 # Code Appendix

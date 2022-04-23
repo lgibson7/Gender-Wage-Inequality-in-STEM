@@ -16,6 +16,6 @@ To address this problem, we used a subset of the College Majors dataset from Fiv
 
 # Tools Used
 
-* Tidyverse: dplyr, ggplot2
-* Statistical Tests: Box-Cox, Step-wise selection, Shapiro-Wilks 
-* Analyses: ANOVA
+* Packages: dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest
+* Libraries: pacman,
+* Statistical Tests & Analyses: Box-Cox, Step-wise selection, Shapiro-Wilks, ANOVA
