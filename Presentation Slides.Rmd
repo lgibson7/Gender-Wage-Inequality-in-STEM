@@ -119,31 +119,31 @@ pairs(Median~., data=dat2[,-c(1)])
 
 # Share Women by Major Category
 
-During our exploratory data analysis we noticed an interesting association between share of women within a given major category.
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
-
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Get totals for men and women for each major category
 dat_stats <- rbind(
-  
   # Get totals for men
-  dat2 %>% group_by(Major_category) %>% 
-  summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>% 
-    mutate(Sex="Men"),
-  
+  dat2 %>% group_by(Major_category) %>%
+  summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
+
+mutate(Sex="Men"),
   # Get totals for women
-  dat2 %>% group_by(Major_category) %>% 
-  summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>% 
+  dat2 %>% group_by(Major_category) %>%
+  summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
     mutate(Sex="Women")
 )
-#dat_stats
 
-dat_stats %>% ggplot(aes(x=Major_category,y=Proportion*100,fill=Sex)) +
-  stat_summary(geom = "bar",stat="identity") +  # stack side by side bars 
 
-  labs(x="Major Category", y="Number of People",
-       title="Major Category Proportions by Sex")
+dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
+  stat_summary(geom = "bar", position="fill") + 
+  # stack side by side bars 
+  theme(axis.text.x=element_text(angle = 7.5),  # get x axes labels to fit
+        plot.title=element_text(size=12, hjust=0.5)) + # center title
+  scale_y_continuous(labels = scales::percent_format()) + 
+  labs(x="Major Category", y="Proportion",
+       title="Major Category by Proportions of Sex")
 ```
+
 
 # Median Wage by Major Category
 
@@ -280,6 +280,8 @@ In conclusion
 - Point 1
 
 - Point 1
+
+# Further Research
 
 # Bibliography
 
