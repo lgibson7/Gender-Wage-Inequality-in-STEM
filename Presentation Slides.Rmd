@@ -121,7 +121,7 @@ pairs(Median~., data=dat2[,-c(1)])
 
 During our exploratory data analysis we noticed an interesting association between share of women within a given major category.
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 
 # Get totals for men and women for each major category
 dat_stats <- rbind(
@@ -138,22 +138,24 @@ dat_stats <- rbind(
 )
 #dat_stats
 
-dat_stats %>% ggplot(aes(x=Major_category,y=Grand_Total,fill=Sex)) +
-  stat_summary(geom = "bar", position="dodge") +  # stack side by side bars 
-  # Get labels for bars
-  geom_text(aes(label=percent(Proportion)), position = position_dodge(width=.9),
-            vjust=-1, size=3) + 
-  theme(axis.text.x=element_text(angle = 7.5),  # get x axes labels to fit
-        plot.title=element_text(size=17, hjust=0.5)) + # center title
-  scale_y_continuous(limits=c(0, 4.25*10^(5))) + # increase size to fit labels
+dat_stats %>% ggplot(aes(x=Major_category,y=Proportion*100,fill=Sex)) +
+  stat_summary(geom = "bar",stat="identity") +  # stack side by side bars 
+
   labs(x="Major Category", y="Number of People",
        title="Major Category Proportions by Sex")
 ```
 
 # Median Wage by Major Category
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 boxplot(Median~Major_category,data=dat2)
+```
+
+```{r echo=FALSE}
+dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
+  labs(x="Major Category", y="Median Salary ($)",
+title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
 ```
 
 
@@ -195,8 +197,6 @@ qqline(MedSal)
 
 ```
 
-
-
 # Box Cox
 
 We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
@@ -225,6 +225,48 @@ qqline(log(MedSal))
 
 
 # Building Predicitive Model
+
+* We started with an additive model but it removed to many variables so we switched to a model with interactions.
+
+* After running a step-wise selection of our model, we were left with the following model.
+
+
+```{r include=FALSE}
+#interaction model
+lm1 <- lm(log(Median) ~(.)^2, data=dat2[-c(2)])
+summary(lm1)
+
+#step-wise selection
+lm2 <- step(lm1)
+
+# create reduced model
+lm_reduced <- lm(log(Median) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
+                 data=dat2[-c(2)])
+
+#anova reduced vs full
+anova(lm_reduced, lm2)
+summary(lm_reduced)
+```
+
+# Model Diagnostics
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Standardized Residual vs Fitted plot
+stdresid_plt <- ggplot(mapping=aes(x=lm_reduced$fitted.values,
+                                   y=rstandard(lm_reduced))) +
+  geom_point() + labs(x="Fitted Values", y="Standardized Residuals") +
+  geom_hline(yintercept=0) + labs(title="Residuals vs Fitted") +
+  theme(plot.title = element_text(, size=17, hjust = 0.5)) + geom_smooth(se=F)
+# Normal QQ_plot
+norm_qqplt <- ggplot(mapping=aes(sample=rstandard(lm_reduced))) + stat_qq() +
+  stat_qq_line() + labs(y="Sample Quantitles", x="Theoretical Quantiles",
+                       title="Normal Q-Q Plot") +
+  theme(plot.title = element_text(size=17, hjust = 0.5))
+# Display the results
+ggarrange(stdresid_plt, norm_qqplt, ncol=2)
+
+```
+
 
 # Cross Validation
 
