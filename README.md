@@ -17,5 +17,4 @@ To address this problem, we used a subset of the College Majors dataset from Fiv
 # Tools Used
 
 * Packages: dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest
-* Libraries: pacman,
 * Statistical Tests & Analyses: Box-Cox, Step-wise selection, Shapiro-Wilks, ANOVA
