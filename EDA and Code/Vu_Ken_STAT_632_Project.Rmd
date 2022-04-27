@@ -7,7 +7,8 @@ output: pdf_document
 
 ```{r}
 library(pacman)
-p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, ggrepel, faraway)
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, 
+                        ggrepel, faraway, ggcorrplot))
 options(scipen = 100) # remove scientific notation
 ```
 
@@ -116,7 +117,9 @@ Some collinearity between Total and Men as men is part of the Total.
 
 Let's check by looking at it numerically.
 ```{r}
-cor(dat2[,-c(1)])
+corr_matrix <- cor(dat2[,-c(1)])
+corrp.mat <- cor_pmat(dat2[,-c(1)])
+ggcorrplot(corr_matrix, hc.order=T, lab=T)
 ```
 
 We have some strong correlation between the predictors Women and Total as well
