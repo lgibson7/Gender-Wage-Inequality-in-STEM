@@ -216,6 +216,28 @@ health field in general with Engineering generally having the lowest
 proportions of women in that field (which confirms observations made in
 the Major Proportions by Sex plot earlier).
 
+For interest, let's look at the MedianSalary by the Major_category where the
+size of each data point is affected by the ShareWomen.
+```{r}
+# Got the outliers
+outlier_pts <- dat1 %>% 
+  filter(Median > 100000 |
+           (Median > 60000 & Major_category == "Physical Sciences"))
+
+
+dat1 %>%
+  ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) + 
+  geom_jitter(alpha = 1/5) + 
+  theme(axis.text.x = element_text(angle=30, vjust=0.65),
+        plot.title = element_text(hjust=0.5),
+        plot.subtitle = element_text(hjust=0.5)) + 
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089), 
+            nudge_y=2, vjust=-1.6, hjust=0.75) + 
+  labs(title="Median Salary vs Major_category",
+       subtitle="With the data point size affected by ShareWomen")
+```
+
+
 # STEP 3 - Fit the model
 Run model on data set.  We will remove Total because of high
 correlation with the variable "Men".  (see pairs, multicollinearity).
