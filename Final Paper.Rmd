@@ -1,18 +1,18 @@
 ---
 title: "Gender Wage Inequality in STEM"
 author: "Lydia Gibson, Sara Hatter & Ken Vu"
-date: "April 28, 2022"
+date: "May 10, 2022"
+header-includes:
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Gender Wage Inequality in STEM}
+- \fancyfoot[CO,CE]{Linear and Logisitic Regression, California State University East Bay}
+- \fancyfoot[LE,RO]{\thepage}
 output: pdf_document
 ---
 
 
-Final Project
 
-STAT 632: Linear and Logistic Regression
-
-California State University, East Bay
-
-Spring 2022
 
 
 \break
