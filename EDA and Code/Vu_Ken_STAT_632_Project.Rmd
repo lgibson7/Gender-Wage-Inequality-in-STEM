@@ -65,6 +65,23 @@ I notice that as there are more women in a field, the median salary goes down.
 
 Some collinearity between Total and Men as men is part of the Total.
 
+Let's also do ANOVA to see if the differences in median salary between Major
+categories is significant.
+
+$H_0: \alpha_1=\alpha_2=...=\alpha_5=0$ (there are no significant differences
+in median salary between Major categories)
+
+$H_A:$ at least one $\alpha_i\ne0$, for $i\in[1,5]$ (at least one major category
+has median salaries that're significantly different from the other major
+categories)
+```{r}
+anova(lm(Median~Major_category,data=dat2))
+```
+
+Given the p-value < 0.05 (our significance level), we reject $H_0$.  We have
+sufficient evidence that the median saleries are significantly different based
+on the major category.  This can be confirmed with a boxplot below. 
+
 ### Histograms of Data
 Let's check distribution of ShareWomen.
 ```{r}
@@ -341,7 +358,6 @@ Find any points with high leverage
 ```{r}
 dat1[which(hatvalues(lm_reduced) > h_cutoff),]
 ```
-
 
 Find any point with high residuals
 ```{r}
