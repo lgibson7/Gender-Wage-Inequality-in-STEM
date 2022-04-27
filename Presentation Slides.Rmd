@@ -143,7 +143,7 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
 
 #
 
-* Within the STEM `Majors`, median wage ranged from $\$26,000$ for Zoology to $\$110,000$ for Petroleum Engineering. 
+* Within the STEM `Majors`, median wage ranged from $\$26,000$ for Zoology (Major Category: Biology & Life Sciences) to $\$110,000$ for Petroleum Engineering (Major Category: Engineering). 
 
 ```{r echo=FALSE}
 summary(dat2$Median)
@@ -165,18 +165,19 @@ plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
 
 #
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Got the outliers
 outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
-
-dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +geom_jitter(alpha = 1/5) +
+dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +
+  geom_jitter(alpha = 1/5) +# make circle transparent to show overlap
   theme(axis.text.x = element_text(angle=30, vjust=0.65),
         plot.title = element_text(hjust=0.5),
-        plot.subtitle = element_text(hjust=0.5)) +
-  geom_text(data=outlier_pts, aes(label=Major, size=0.089),
-            nudge_y=2, vjust=-1.6, hjust=0.75) +
-  labs(title="Median Salary vs Major_category",                                                subtitle="With the data point size affected by ShareWomen")
-
+        plot.subtitle = element_text(hjust=0.5),
+        legend.position = c(0.92,0.82)) +
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089),nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers
+  labs(title="Median Salary vs Major_category",subtitle="With the data point size affected by ShareWomen") +
+  guides(color=FALSE, # remove Major_category legend, remove "a" from legend
+         size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8))))
 ```
 
 
