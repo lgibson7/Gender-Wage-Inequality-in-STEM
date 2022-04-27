@@ -7,7 +7,7 @@ output: pdf_document
 
 ```{r}
 library(pacman)
-p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, ggrepel)
+p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, ggrepel, faraway)
 options(scipen = 100) # remove scientific notation
 ```
 
@@ -54,6 +54,55 @@ head(dat2)
 
 
 ## Exploratory Data Analysis
+### Boxplots 
+Let's check out the boxplot of major category.
+```{r}
+dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() + 
+  labs(x="Major Category", y="Median Salary ($)", 
+       title = "Median Salary by Major Category") + 
+  theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+        plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
+```
+
+Also, see the boxplot of ShareWomen by major category.
+```{r}
+dat2 %>% ggplot(aes(x=Major_category, y=ShareWomen)) + geom_boxplot() + 
+  labs(x="Major Category", y="Proportion of Women (%)", 
+       title="Proportion of Women by Major Category") +
+  theme(axis.text.x=element_text(angle=7.5), 
+        plot.title=element_text(size=17, hjust=0.5))
+```
+
+We can see that generally, we tend to see higher proportions of women in the
+health field in general with Engineering generally having the lowest 
+proportions of women in that field.
+
+For interest, let's look at the MedianSalary by the Major_category where the
+size of each data point is affected by the ShareWomen.
+```{r}
+# Got the outliers
+outlier_pts <- dat1 %>% 
+  filter(Median > 100000 |
+           (Median > 60000 & Major_category == "Physical Sciences"))
+
+
+dat1 %>%
+  ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) + 
+  geom_jitter(alpha = 1/5) +  # make circle transparent to show overlap
+  theme(axis.text.x = element_text(angle=30, vjust=0.65),
+        plot.title = element_text(hjust=0.5),
+        plot.subtitle = element_text(hjust=0.5),
+        legend.position = c(0.92,0.82)) + 
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089), 
+            nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers 
+  labs(title="Median Salary vs Major_category",
+       subtitle="With the data point size affected by ShareWomen") + 
+  guides(color=FALSE, # remove Major_category legend, remove "a" from legend
+         size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8)))) 
+
+```
+
+### Checking Multicollinearity
 Let's do a scatterplot matrix.
 ```{r}
 pairs(Median~., data=dat2[,-c(1)])
@@ -64,6 +113,17 @@ I notice that as there are more women in a field, the median salary goes down.
 - Conclusion: Share Women relationship and Median salary going down?  Why?
 
 Some collinearity between Total and Men as men is part of the Total.
+
+Let's check by looking at it numerically.
+```{r}
+cor(dat2[,-c(1)])
+```
+
+We have some strong correlation between the predictors Women and Total as well
+as Men and Total.  This makes sense as both Men and Women are a part of the
+calculations for the Total.
+
+### Conducting ANOVA
 
 Let's also do ANOVA to see if the differences in median salary between Major
 categories is significant.
@@ -80,7 +140,9 @@ anova(lm(Median~Major_category,data=dat2))
 
 Given the p-value < 0.05 (our significance level), we reject $H_0$.  We have
 sufficient evidence that the median saleries are significantly different based
-on the major category.  This can be confirmed with a boxplot below. 
+on the major category.  This confirms the analysis we did on the boxplot
+of Median vs Major_Category earlier. 
+
 
 ### Histograms of Data
 Let's check distribution of ShareWomen.
@@ -209,54 +271,7 @@ mid_start <- round((nrow(dat2)-5)/2)
 dat2 %>% arrange(desc(ShareWomen)) %>% slice(mid_start:(mid_start+4))
 ```
 
-### Boxplots 
-Lastly, let's check out the boxplot of major category.
-```{r}
-dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() + 
-  labs(x="Major Category", y="Median Salary ($)", 
-       title = "Median Salary by Major Category") + 
-  theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
-        plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
-```
 
-Also, see the boxplot of ShareWomen by major category.
-```{r}
-dat2 %>% ggplot(aes(x=Major_category, y=ShareWomen)) + geom_boxplot() + 
-  labs(x="Major Category", y="Proportion of Women (%)", 
-       title="Proportion of Women by Major Category") +
-  theme(axis.text.x=element_text(angle=7.5), 
-        plot.title=element_text(size=17, hjust=0.5))
-```
-
-We can see that generally, we tend to see higher proportions of women in the
-health field in general with Engineering generally having the lowest 
-proportions of women in that field (which confirms observations made in
-the Major Proportions by Sex plot earlier).
-
-For interest, let's look at the MedianSalary by the Major_category where the
-size of each data point is affected by the ShareWomen.
-```{r}
-# Got the outliers
-outlier_pts <- dat1 %>% 
-  filter(Median > 100000 |
-           (Median > 60000 & Major_category == "Physical Sciences"))
-
-
-dat1 %>%
-  ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) + 
-  geom_jitter(alpha = 1/5) +  # make circle transparent to show overlap
-  theme(axis.text.x = element_text(angle=30, vjust=0.65),
-        plot.title = element_text(hjust=0.5),
-        plot.subtitle = element_text(hjust=0.5),
-        legend.position = c(0.92,0.82)) + 
-  geom_text(data=outlier_pts, aes(label=Major, size=0.089), 
-            nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers 
-  labs(title="Median Salary vs Major_category",
-       subtitle="With the data point size affected by ShareWomen") + 
-  guides(color=FALSE, # remove Major_category legend, remove "a" from legend
-         size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8)))) 
-
-```
 
 
 # STEP 3 - Fit the model
@@ -285,7 +300,7 @@ anova(lm_reduced, lm2)
 ```
 
 Write the hypothesis that null is that coefficient for Women is 0, which we
-fail to reject.
+fail to reject.  Thus, we can stick with the model without the variable Women.
 
 ```{r}
 summary(lm_reduced)
@@ -293,6 +308,9 @@ summary(lm_reduced)
 
 Given $R^2=0.5213$, about 52.13% of the variability in the median salary can be explained by the chosen predictors.  However, the model could certainly perform slightly better and
 may not be entirely reliable, as we'll see in the diagnostics plots below.
+
+We can also see the adjusted R^2 went down slightly when we took out the predictor
+Women.
 
 # STEP 4 - Check the model's performance
 ## Model Diagnostics 
@@ -337,6 +355,16 @@ follow a normal distribution.
 shapiro.test(rstandard(lm_reduced))
 ```
 
+## Checking VIF
+Let's check the VIF for the reduced model.
+```{r}
+round(vif(lm_reduced),2)
+```
+
+For ShareWomen, we can see that there are some issues with multicollinearity with
+the predictor "ShareWomen" as we expect that the standard erorr for this predictor 
+would be roughly $\sqrt{5.21}=2.28$ times larger than it would be without 
+collinearity (esp as the cutoff for VIF is 5 as a rule of thumb)
 
 ## High Leverage Analysis
 Let's look at points with high leverage or high standard residuals.  We got 
@@ -374,4 +402,3 @@ low median salary.  Physics has more women and a milder salary.
 
 Perhaps, sex may not be too relevant here as you may also have to consider the
 unemployment rates, the number of college jobs, etc.
-
