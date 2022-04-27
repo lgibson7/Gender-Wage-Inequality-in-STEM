@@ -124,25 +124,21 @@ pairs(Median~., data=dat2[,-c(1)])
 # Get totals for men and women for each major category
 dat_stats <- rbind(
   # Get totals for men
-  dat2 %>% group_by(Major_category) %>%
-  summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
-
-mutate(Sex="Men"),
-  # Get totals for women
-  dat2 %>% group_by(Major_category) %>%
-  summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
-    mutate(Sex="Women")
-)
-
+  dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
+mutate(Sex="Men", labelpos=Proportion/2),
+# Get totals for women
+dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
+  mutate(Sex="Women", labelpos=1 - (Proportion/2))) %>% mutate(Sex = Sex %>% factor(levels=c("Women","Men")))
+#dat_stats
 
 dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
-  stat_summary(geom = "bar", position="fill") + 
-  # stack side by side bars 
-  theme(axis.text.x=element_text(angle = 7.5),  # get x axes labels to fit
-        plot.title=element_text(size=12, hjust=0.5)) + # center title
-  scale_y_continuous(labels = scales::percent_format()) + 
-  labs(x="Major Category", y="Proportion",
-       title="Major Category by Proportions of Sex")
+  stat_summary(geom = "bar", position="fill") +# stack side by side bars
+  theme(axis.text.x=element_text(angle = 7.5),# get x axes labels to fit
+        plot.title=element_text(size=17, hjust=0.5)) +# center title
+  geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x="Major Category", y="Proportion of People (%)",
+       title="Major Category Proportions by Sex")
 ```
 
 #
@@ -166,6 +162,23 @@ dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
 title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
 plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
 ```
+
+#
+
+```{r echo=FALSE}
+# Got the outliers
+outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
+
+dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +geom_jitter(alpha = 1/5) +
+  theme(axis.text.x = element_text(angle=30, vjust=0.65),
+        plot.title = element_text(hjust=0.5),
+        plot.subtitle = element_text(hjust=0.5)) +
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089),
+            nudge_y=2, vjust=-1.6, hjust=0.75) +
+  labs(title="Median Salary vs Major_category",                                                subtitle="With the data point size affected by ShareWomen")
+
+```
+
 
 
 # Test differences between major categories
@@ -214,7 +227,8 @@ We notices that there was some skewing, so we decided to do a Box-Cox test to se
  lm_full <- lm(Median~.,data=dat2)
 boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 ```
-#
+
+# Box-Cox Summary output
 
 ```{r echo=FALSE}
 summary(powerTransform(lm_full))
@@ -231,7 +245,7 @@ Our rounded power is -1 so we wouldn’t need to transform the data. Also, -1 as
 * After running a step-wise selection of our model, we were left with the following model.
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 #interaction model
 lm1 <- lm(Median ~., data=dat2[-c(2)])
 summary(lm1)
@@ -243,7 +257,7 @@ summary(lm1)
 
 Since the additive model removed all put one predictor, we rerun the the model with interactions
 
-```{r}
+```{r include=FALSE, echo=FALSE}
 #interaction model
 lm1 <- lm(Median ~(.)^2, data=dat2[-c(2)])
 summary(lm1)
@@ -252,7 +266,7 @@ summary(lm1)
 
 #
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 
 #step-wise selection
 lm2 <- step(lm1)
@@ -263,7 +277,7 @@ lm2 <- step(lm1)
 
 #
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 # create reduced model
 lm_reduced <- lm(Median ~ Major_category + Men + ShareWomen + Men:ShareWomen,
                  data=dat2[-c(2)])
