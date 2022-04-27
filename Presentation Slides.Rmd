@@ -44,18 +44,18 @@ The data was obtained from the American Community Survey 2010-2012 Public Use Mi
 
 # Data set
 
-The dimensions of the data set are 76 rows by 9 columns.
+* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
-```{r echo=FALSE, size="tiny"}
+The dimensions of the data set are 76 rows (`Major`) by 9 columns.
+
+```{r echo=FALSE, size="tiny", include=FALSE}
 head(dat1, n=3)
 
 ```
-* Link to data set: https://github.com/fivethirtyeight/data/blob/master/college-majors/women-stem.csv
 
+## Variables
 
-# Variables
-
-We chose `Median`: Median earnings of full-time, year-round workers as our response variable and our *potential* predictor variables are:
+- `Median`: Median earnings of full-time, year-round workers
 
 - `Rank`: Rank by median earnings
 
@@ -72,6 +72,8 @@ We chose `Median`: Median earnings of full-time, year-round workers as our respo
 - `Women`:Female graduates
 
 - `ShareWomen`: Women as share of total
+
+
 
 
 # Exploratory Data Analysis
@@ -94,28 +96,27 @@ levels(dat2$Major_category)
 * [4]"Health"                  
 * [5]"Physical Sciences" 
 
-#
 
-* For our analysis, we also removed the columns `Major_code` and `Rank`  as they aren’t relevant predictors for our purposes.
 
-```{r echo=FALSE, size="tiny"}
-head(dat2, n=3)
+Within the STEM `Majors`, median wage ($Mdn = \$44350, M = \$46118$) ranged from $\$26,000$ for Zoology (Major Category: Biology & Life Sciences) to $\$110,000$ for Petroleum Engineering (Major Category: Engineering). 
 
+```{r echo=FALSE, include=FALSE}
+summary(dat2$Median)
 ```
 
 
+# Median Wage by Major Category
 
-# Scaterplot Matrix
+```{r echo=FALSE, include=FALSE}
+boxplot(Median~Major_category,data=dat2)
+```
 
 ```{r echo=FALSE}
-pairs(Median~., data=dat2[,-c(1)])
+dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
+  labs(x="Major Category", y="Median Salary ($)",
+title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
 ```
-
-# Scatterplot Matrix Insights
-
-* There seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
-
-* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
 
 # Share Women by Major Category
@@ -143,28 +144,6 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
 
 #
 
-* Within the STEM `Majors`, median wage ranged from $\$26,000$ for Zoology (Major Category: Biology & Life Sciences) to $\$110,000$ for Petroleum Engineering (Major Category: Engineering). 
-
-```{r echo=FALSE}
-summary(dat2$Median)
-```
-
-
-# Median Wage by Major Category
-
-```{r echo=FALSE, include=FALSE}
-boxplot(Median~Major_category,data=dat2)
-```
-
-```{r echo=FALSE}
-dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
-  labs(x="Major Category", y="Median Salary ($)",
-title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
-plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
-```
-
-#
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Got the outliers
 outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
@@ -181,14 +160,39 @@ dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWo
 ```
 
 
-
 # Test differences between major categories
 
 Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis.
 
-```{r}
+```{r echo=FALSE}
 # anova of major categories
+anova(lm(Median~Major_category,data=dat2))
 ```
+
+
+
+#
+
+* For our analysis, we also removed the columns `Major_code` and `Rank`  as they aren’t relevant predictors for our purposes.
+
+```{r echo=FALSE, size="tiny"}
+head(dat2, n=3)
+
+```
+
+
+
+# Scaterplot Matrix
+
+```{r echo=FALSE}
+pairs(Median~., data=dat2[,-c(1)])
+```
+
+# Scatterplot Matrix Insights
+
+* There seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
+
+* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
 
 
