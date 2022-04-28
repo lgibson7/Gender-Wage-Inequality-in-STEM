@@ -23,7 +23,7 @@ options(scipen = 100) # remove scientific notation
 Do we choose our career path based on gender-based social roles or based on top
 salary? Although many countries, such as China, have incorporated women into their labor power to become a powerful economy$^1$, women still choose careers that are more in sync to gender stereotype. 
 
-Undoubtedly, personality characteristics associated with women, are sympathy, kindness, and warmth, and reflect a concern about other people. However, the traits associated to men are achievement orientation and ambitiousness, and concern about accomplishing tasks. These characteristics are very noticeable in the stereotypical association of men in the worker role and women in the family role$^2$. 
+Undoubtedly, personality characteristics associated with women, are sympathy, kindness, warmth, and reflect a concern about other people. However, the traits associated to men are achievement orientation and ambitiousness, and concern about accomplishing tasks. These characteristics are very noticeable in the stereotypical association of men in the worker role and women in the family role$^2$. 
 
 More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
 
@@ -79,7 +79,7 @@ What associations exist within STEM college majors that have an effect on median
 * To create a predictive model for median wage.
 
 
-# Stacked Boxplot: Gender Proportions per Major Category
+# Stacked Bar chart: Gender Proportions per Major Category
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 # remove Rank, Major_code, and Major
@@ -201,7 +201,7 @@ pairs(Median~., data=dat2[,-c(1)])
 
 * As expected, there seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
 
-* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model. To address this, we will run a coorelation matrix.
+* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model. To address this, we will run a correlation matrix.
 
 # 
 
@@ -371,7 +371,7 @@ In conclusion
 
 - There is an association with gender and median wage of STEM majors.
 
-- You can predict the median wage of STEM majors based on the major category, total number of men in the major and total proportion of women in the major.
+- We can predict the median wage of STEM majors based on the major category, total number of men in the major and total proportion of women in the major.
 
 - We all should have majored in Petroleum Engineering!
 
