@@ -153,7 +153,7 @@ $H_A:\alpha_i\ne 0, i=1,2...,5$
 anova(lm(Median~Major_category,data=dat2))
 ```
 
-Based on our one-way ANOVA, we reject the null hypothesis and conclude that there are statistically significant differences in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
+Based on our one-way ANOVA, we reject the null hypothesis and concluded that there are statistically significant differences in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
 
 # Jitter plot: Median Wage by Major Category 
 
@@ -292,6 +292,9 @@ lm_reduced <- lm((Median^(-1)) ~ Major_category + Men + ShareWomen + Men:ShareWo
 anova(lm_reduced, lm2)
 ```
 
+Given $p=0.7394>\alpha=0.05$, we fail to reject $H_0$ (`Women` is not a significant
+predictor).
+Thus, we can remove the predictor `Women`.
 
 # Getting the reduced final model
 ![](slide_get_reduce_model.png){width=90%} 
@@ -347,16 +350,15 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 ```
 
 # Model Diagnostics (Numeric Tests)
-* Testing constance variance
+* Verifying constant variance ($\alpha=0.05$)
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 bptest(lm_reduced)
 ```
 
-* Testing normality of residuals
+* Verifying normality of residuals ($\alpha=0.05$)
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 shapiro.test(rstandard(lm_reduced))
 ```
-
 
 # Multicollinearity (VIF)
 
