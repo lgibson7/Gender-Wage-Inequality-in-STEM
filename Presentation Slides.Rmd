@@ -12,7 +12,8 @@ output:
 ```{r echo=FALSE}
 dat1 <- read.csv("women-stem.csv")
 library(pacman)
-suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest))
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, 
+                        ggrepel, faraway, ggcorrplot))
 options(scipen = 100) # remove scientific notation
 ```
 
@@ -23,19 +24,6 @@ Undoubtedly, personality characteristics associated with women, are sympathy, ki
 
 More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
 
-# Introduction cont.
-
-Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
-
-
-## Research Question: 
-
-What associations exist within STEM college majors that have an effect on median wages?
-
-## Goals: 
-
-* To explore the data for STEM college majors.
-* To create a predictive model for median wage.
 
 # Data Description
 
@@ -73,55 +61,26 @@ head(dat1, n=3)
 
 - `ShareWomen`: Women as share of total
 
+# Research Question and Goals
+
+Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
 
 
+## Research Question: 
 
-# Exploratory Data Analysis
+What associations exist within STEM college majors that have an effect on median wages?
 
+## Goals: 
 
-Instead of looking at each individual `Major`, we have set `Major_category` as a factor with the following levels:
-
-```{r echo=FALSE,include=FALSE}
-# remove Rank, Major_code, and Major
-dat2 <- dat1[,-c(1,2,3)] 
-
-#set major category as a factor
-dat2$Major_category <- as.factor(dat2$Major_category)
-levels(dat2$Major_category)
-```
-
-* [1]"Biology & Life Science"  
-* [2]"Computers & Mathematics" 
-* [3]"Engineering"            
-* [4]"Health"                  
-* [5]"Physical Sciences" 
-
-
-
-Within the STEM `Majors`, median wage ($Mdn = \$44350, M = \$46118$) ranged from $\$26,000$ for Zoology (Major Category: Biology & Life Sciences) to $\$110,000$ for Petroleum Engineering (Major Category: Engineering). 
-
-```{r echo=FALSE, include=FALSE}
-summary(dat2$Median)
-```
-
-
-# Median Wage by Major Category
-
-```{r echo=FALSE, include=FALSE}
-boxplot(Median~Major_category,data=dat2)
-```
-
-```{r echo=FALSE}
-dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
-  labs(x="Major Category", y="Median Salary ($)",
-title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
-plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
-```
+* To explore the data for STEM college majors.
+* To create a predictive model for median wage.
 
 
 # Share Women by Major Category
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
+# remove Rank, Major_code, and Major
+dat2 <- dat1[,-c(1,2,3)] 
 # Get totals for men and women for each major category
 dat_stats <- rbind(
   # Get totals for men
@@ -142,6 +101,60 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
        title="Major Category Proportions by Sex")
 ```
 
+
+
+# Exploratory Data Analysis
+
+`Median` wage of the individual majors ranged from $\$26,000$ for Zoology  to $\$110,000$ for Petroleum Engineering ($Mdn = \$44350, M = \$46118$) . 
+
+```{r echo=FALSE, include=FALSE}
+
+
+summary(dat2$Median)
+```
+
+We have set `Major_category` as a factor with the following levels:
+
+```{r echo=FALSE,include=FALSE}
+
+#set major category as a factor
+dat2$Major_category <- as.factor(dat2$Major_category)
+levels(dat2$Major_category)
+```
+
+* [1]"Biology & Life Science"  
+* [2]"Computers & Mathematics" 
+* [3]"Engineering"            
+* [4]"Health"                  
+* [5]"Physical Sciences" 
+
+so that we can further distinguish the variation of share of women within major categories and the median wages each major category earns.
+
+# Median Wage by Major Category
+
+```{r echo=FALSE}
+dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
+  labs(x="Major Category", y="Median Salary ($)",
+title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
+```
+
+
+# Test differences between major categories
+
+Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis:
+
+$H_0:\alpha_1=\alpha_2=\alpha_3=\alpha_4=\alpha_5= 0$ 
+
+$H_1:\alpha_i\ne 0, i=1,2...,5$ 
+
+```{r echo=FALSE, include=FALSE}
+# anova of major categories
+anova(lm(Median~Major_category,data=dat2))
+```
+
+Based on our one-way ANOVA, we reject the null hypothesis and conclude that there was a statistically significant difference in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
+
 #
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -159,15 +172,6 @@ dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWo
          size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8))))
 ```
 
-
-# Test differences between major categories
-
-Based on our boxplot, we noticed there may be a significant difference between median wage by major category so we ran an ANOVA to test our hypothesis.
-
-```{r echo=FALSE}
-# anova of major categories
-anova(lm(Median~Major_category,data=dat2))
-```
 
 
 
@@ -194,6 +198,13 @@ pairs(Median~., data=dat2[,-c(1)])
 
 * There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
+# 
+
+```{r echo=FALSE}
+corr_matrix <- cor(dat2[,-c(1)])
+corrp.mat <- cor_pmat(dat2[,-c(1)])
+ggcorrplot(corr_matrix, hc.order=T, lab=T)
+```
 
 
 # Multicollinearity
@@ -214,15 +225,6 @@ Before beginning our analysis, we began by exploring the normality within our re
 ```
 
 
-```{r echo=FALSE, include=FALSE}
-#test normality of median
-MedSal<-dat2$Median #create object median salary 
-par(mfrow=c(1,2))
-hist(MedSal)
-qqnorm(MedSal)
-qqline(MedSal)
-
-```
 
 # Box Cox
 
@@ -348,6 +350,12 @@ In conclusion
 # Further Research
 
 # Bibliography
+
+Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration.* 3rd ed., Pearson, 2013.
+
+Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide.* Three Rivers Press, 2010. 
+
+
 
 
 
