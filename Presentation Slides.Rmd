@@ -12,7 +12,8 @@ output:
 ```{r echo=FALSE}
 dat1 <- read.csv("women-stem.csv")
 library(pacman)
-suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest))
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, 
+                        ggrepel, faraway, ggcorrplot))
 options(scipen = 100) # remove scientific notation
 ```
 
@@ -23,19 +24,6 @@ Undoubtedly, personality characteristics associated with women, are sympathy, ki
 
 More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
 
-# Introduction cont.
-
-Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
-
-
-## Research Question: 
-
-What associations exist within STEM college majors that have an effect on median wages?
-
-## Goals: 
-
-* To explore the data for STEM college majors.
-* To create a predictive model for median wage.
 
 # Data Description
 
@@ -73,6 +61,45 @@ head(dat1, n=3)
 
 - `ShareWomen`: Women as share of total
 
+# Research Question and Goals
+
+Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
+
+
+## Research Question: 
+
+What associations exist within STEM college majors that have an effect on median wages?
+
+## Goals: 
+
+* To explore the data for STEM college majors.
+* To create a predictive model for median wage.
+
+
+# Share Women by Major Category
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# remove Rank, Major_code, and Major
+dat2 <- dat1[,-c(1,2,3)] 
+# Get totals for men and women for each major category
+dat_stats <- rbind(
+  # Get totals for men
+  dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
+mutate(Sex="Men", labelpos=Proportion/2),
+# Get totals for women
+dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
+  mutate(Sex="Women", labelpos=1 - (Proportion/2))) %>% mutate(Sex = Sex %>% factor(levels=c("Women","Men")))
+#dat_stats
+
+dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
+  stat_summary(geom = "bar", position="fill") +# stack side by side bars
+  theme(axis.text.x=element_text(angle = 7.5),# get x axes labels to fit
+        plot.title=element_text(size=17, hjust=0.5)) +# center title
+  geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x="Major Category", y="Proportion of People (%)",
+       title="Major Category Proportions by Sex")
+```
 
 
 
@@ -81,8 +108,7 @@ head(dat1, n=3)
 `Median` wage of the individual majors ranged from $\$26,000$ for Zoology  to $\$110,000$ for Petroleum Engineering ($Mdn = \$44350, M = \$46118$) . 
 
 ```{r echo=FALSE, include=FALSE}
-# remove Rank, Major_code, and Major
-dat2 <- dat1[,-c(1,2,3)] 
+
 
 summary(dat2$Median)
 ```
@@ -106,10 +132,6 @@ so that we can further distinguish the variation of share of women within major 
 
 # Median Wage by Major Category
 
-```{r echo=FALSE, include=FALSE}
-boxplot(Median~Major_category,data=dat2)
-```
-
 ```{r echo=FALSE}
 dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
   labs(x="Major Category", y="Median Salary ($)",
@@ -132,29 +154,6 @@ anova(lm(Median~Major_category,data=dat2))
 ```
 
 Based on our one-way ANOVA, we reject the null hypothesis and conclude that there was a statistically significant difference in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
-
-# Share Women by Major Category
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-# Get totals for men and women for each major category
-dat_stats <- rbind(
-  # Get totals for men
-  dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
-mutate(Sex="Men", labelpos=Proportion/2),
-# Get totals for women
-dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
-  mutate(Sex="Women", labelpos=1 - (Proportion/2))) %>% mutate(Sex = Sex %>% factor(levels=c("Women","Men")))
-#dat_stats
-
-dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
-  stat_summary(geom = "bar", position="fill") +# stack side by side bars
-  theme(axis.text.x=element_text(angle = 7.5),# get x axes labels to fit
-        plot.title=element_text(size=17, hjust=0.5)) +# center title
-  geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
-  scale_y_continuous(labels = scales::percent_format()) +
-  labs(x="Major Category", y="Proportion of People (%)",
-       title="Major Category Proportions by Sex")
-```
 
 #
 
@@ -199,6 +198,13 @@ pairs(Median~., data=dat2[,-c(1)])
 
 * There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
+# 
+
+```{r echo=FALSE}
+corr_matrix <- cor(dat2[,-c(1)])
+corrp.mat <- cor_pmat(dat2[,-c(1)])
+ggcorrplot(corr_matrix, hc.order=T, lab=T)
+```
 
 
 # Multicollinearity
@@ -219,15 +225,6 @@ Before beginning our analysis, we began by exploring the normality within our re
 ```
 
 
-```{r echo=FALSE, include=FALSE}
-#test normality of median
-MedSal<-dat2$Median #create object median salary 
-par(mfrow=c(1,2))
-hist(MedSal)
-qqnorm(MedSal)
-qqline(MedSal)
-
-```
 
 # Box Cox
 
