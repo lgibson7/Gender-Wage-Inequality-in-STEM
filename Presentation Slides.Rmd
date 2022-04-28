@@ -241,7 +241,7 @@ summary(powerTransform(lm_full))
 ```
 
 Our rounded power is -1 so we will do an inverse transformation of the response
-`Median`.
+`Median`.  However, model interpretability may be difficult.
 
 
 # Building Predicitive Model
