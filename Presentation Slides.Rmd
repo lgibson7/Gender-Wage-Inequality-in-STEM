@@ -9,7 +9,7 @@ output:
 
 # Introduction
 ```{r set-options, echo=FALSE, cache=FALSE}
-options(width = 30)
+#options(width = 30)
 ```
 
 ```{r echo=FALSE}
@@ -79,7 +79,7 @@ What associations exist within STEM college majors that have an effect on median
 * To create a predictive model for median wage.
 
 
-# Share Women by Major Category
+# Stacked Boxplot: Gender Proportions per Major Category
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 # remove Rank, Major_code, and Major
@@ -100,8 +100,8 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
         plot.title=element_text(size=17, hjust=0.5)) +# center title
   geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
   scale_y_continuous(labels = scales::percent_format()) +
-  labs(x="Major Category", y="Proportion of People (%)",
-       title="Major Category Proportions by Sex")
+  labs(x="Major Category", y="Proportion of Gender (%)",
+       title="Gender Proportions per Major Category")
 ```
 
 
@@ -130,12 +130,12 @@ levels(dat2$Major_category)
 
 so that we can further distinguish the variation of share of women within major categories and the median wages each major category earns.
 
-# Median Wage by Major Category
+# Box Plot: Median Wage by Major Category
 
 ```{r echo=FALSE}
 dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
   labs(x="Major Category", y="Median Salary ($)",
-title = "Median Salary by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
+title = "Median Salary($) by Major Category") + theme(axis.text.x=element_text(angle=7.5), # adjust x labels for no overlap
 plot.title=element_text(size=17, hjust=0.5)) # adjust title to center
 ```
 
@@ -155,7 +155,7 @@ anova(lm(Median~Major_category,data=dat2))
 
 Based on our one-way ANOVA, we reject the null hypothesis and conclude that there are statistically significant differences in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
 
-# Median Wage by Major Category w/ Consideration for ShareWomen
+# Jitter plot: Median Wage by Major Category 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Got the outliers
@@ -167,7 +167,7 @@ dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWo
         plot.subtitle = element_text(hjust=0.5),
         legend.position = c(0.92,0.82)) +
   geom_text(data=outlier_pts, aes(label=Major, size=0.089),nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers
-  labs(title="Median Salary vs Major_category",subtitle="With the data point size affected by ShareWomen") +
+  labs(x="Major Category", y="Median Salary ($)",title="Median Salary($) by Major Category", ) +
   guides(color=FALSE, # remove Major_category legend, remove "a" from legend
          size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8))))
 ```
@@ -179,7 +179,12 @@ dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWo
 
 * For our analysis, we also removed the columns `Major_code` and `Rank`  as they aren’t relevant predictors for our purposes.
 
-```{r echo=FALSE, size="tiny"}
+```{r echo=FALSE}
+head(dat2)
+```
+
+
+```{r echo=FALSE, include=FALSE}
 head(dat2, n=3)
 
 ```
@@ -194,11 +199,11 @@ pairs(Median~., data=dat2[,-c(1)])
 
 # Scatterplot Matrix Insights
 
-* There seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
+* As expected, there seems to be a negative association between `ShareWomen` and `Median`. This is one of the main motivators for our research.
 
-* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
+* There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model. To address this, we will run a coorelation matrix.
 
-# Correlation Matrix
+# 
 
 ```{r echo=FALSE}
 corr_matrix <- cor(dat2[,-c(1)])
@@ -244,7 +249,7 @@ Our rounded power is -1 so we will do an inverse transformation of the response
 We started with the full additive model but it removed to many variables so we decided switched to a model with interactions.
 
 ```{r include=F, echo=F}
-options(scipen=4)
+options(scipen=4, width = 30)
 #interaction model
 lm1 <- lm((Median^(-1)) ~., data=dat2[-c(2)])
 summary(step(lm1))
@@ -293,6 +298,8 @@ anova(lm_reduced, lm2)
 ```{r echo=F, include=F}
 summary(lm_reduced)
 ```
+
+$Median^{-1}=2.71e^{-5}-3.441e^{-6}x_1-8.87e^{-6}x_2-3.991e^{-7}x_3-3.09e^{-6}x_4-4.14e^{-11}x_5+1.08e^{-6}x_6+8.97e^{-11}x_7$
 
 # Model Diagnostics
 
