@@ -37,6 +37,10 @@ output: pdf_document
 
 # Bibliography
 
+Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration.* 3rd ed., Pearson, 2013.
+
+Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide.* Three Rivers Press, 2010. 
+
 ## Code Appendix. 
 
 For supplementary R script, visit https://github.com/lgibson7/Gender-Wage-Inequality-in-STEM
