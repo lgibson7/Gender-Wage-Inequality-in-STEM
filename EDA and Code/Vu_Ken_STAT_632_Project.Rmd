@@ -86,21 +86,19 @@ outlier_pts <- dat1 %>%
   filter(Median > 100000 |
            (Median > 60000 & Major_category == "Physical Sciences"))
 
-
 dat1 %>%
   ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) + 
-  geom_jitter(alpha = 1/5) +  # make circle transparent to show overlap
-  theme(axis.text.x = element_text(angle=30, vjust=0.65),
+  geom_jitter(alpha = 1/4) +  # make circle transparent to show overlap
+  theme(axis.text.x = element_text(angle=30, vjust=0.65), # format plot text
         plot.title = element_text(hjust=0.5),
         plot.subtitle = element_text(hjust=0.5),
         legend.position = c(0.92,0.82)) + 
-  geom_text(data=outlier_pts, aes(label=Major, size=0.089), 
-            nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers 
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089), # label outliers 
+            nudge_y=2, vjust=-1.6, hjust=0.7) + 
   labs(title="Median Salary vs Major_category",
        subtitle="With the data point size affected by ShareWomen") + 
   guides(color=FALSE, # remove Major_category legend, remove "a" from legend
          size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8)))) 
-
 ```
 
 ### Checking Multicollinearity
@@ -119,7 +117,8 @@ Let's check by looking at it numerically.
 ```{r}
 corr_matrix <- cor(dat2[,-c(1)])
 corrp.mat <- cor_pmat(dat2[,-c(1)])
-ggcorrplot(corr_matrix, hc.order=T, lab=T)
+ggcorrplot(corr_matrix, hc.order=T, lab=T, 
+           colors= c("white","lightskyblue2","dodgerblue4"))
 ```
 
 We have some strong correlation between the predictors Women and Total as well
@@ -142,7 +141,7 @@ anova(lm(Median~Major_category,data=dat2))
 ```
 
 Given the p-value < 0.05 (our significance level), we reject $H_0$.  We have
-sufficient evidence that the median saleries are significantly different based
+sufficient evidence that the median salaries are significantly different based
 on the major category.  This confirms the analysis we did on the boxplot
 of Median vs Major_Category earlier. 
 
@@ -160,20 +159,19 @@ Seems very right skewed
 Let's check distribution of Median.
 ```{r}
 dat2 %>% ggplot(mapping=aes(x=(Median))) + geom_histogram(bin.width=5000) + 
-  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red")
+  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red") + 
+  labs(y="count")
 # right skewed data
 ```
 
 Not too great so let's see if we can transform this data.  
 ```{r}
 lm_full <- lm(Median~.,data=dat2)
-boxcox(lm_full, lambda=seq(0.3, 0.65, by =0.05))
+boxcox(lm_full, lambda=seq(-2, 0.5, by =0.05))
 summary(powerTransform(lm_full))
 ```
 
-Our rounded power is -1 so we wouldn't need to transform the data.  Also, -1 as 
-a power would make the data difficult to interpret.
-
+Our rounded power is -1 so that would be an inverse transformation.
 
 ### Summary Statistics - General
 Getting summary statistics for the data
@@ -274,9 +272,6 @@ mid_start <- round((nrow(dat2)-5)/2)
 dat2 %>% arrange(desc(ShareWomen)) %>% slice(mid_start:(mid_start+4))
 ```
 
-
-
-
 # STEP 3 - Fit the model
 Run model on data set.  We will remove Total because of high
 correlation with the variable "Men".  (see pairs, multicollinearity).
@@ -285,7 +280,7 @@ head(dat2)
 ```
 
 ```{r}
-lm1 <- lm(log(Median) ~(.)^2, data=dat2[-c(2)])
+lm1 <- lm((Median^(-1)) ~(.)^2, data=dat2[-c(2)])
 summary(lm1)
 ```
 
@@ -296,8 +291,13 @@ summary(lm2)
 ```
 
 Do partial F-test to see if we can remove Women from data.
+
+$H_0$: $\beta_{women}=0$ (*Women* is not a significant predictor)
+
+$H_A$: $\beta_{women}\ne0$ (*Women* is a significant predictor)
+
 ```{r}
-lm_reduced <- lm(log(Median) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
+lm_reduced <- lm((Median^(-1)) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
                  data=dat2[-c(2)])
 anova(lm_reduced, lm2)
 ```
@@ -309,7 +309,7 @@ fail to reject.  Thus, we can stick with the model without the variable Women.
 summary(lm_reduced)
 ```
 
-Given $R^2=0.5213$, about 52.13% of the variability in the median salary can be explained by the chosen predictors.  However, the model could certainly perform slightly better and
+Given $R^2=0.5377$, about 53.77% of the variability in the median salary can be explained by the chosen predictors.  However, the model could certainly perform slightly better and
 may not be entirely reliable, as we'll see in the diagnostics plots below.
 
 We can also see the adjusted R^2 went down slightly when we took out the predictor
@@ -340,7 +340,13 @@ For the residual plot, the assumption of constant variance seems to hold up
 fairly well.  There is no discernible relationship between the standardized 
 residuals and predicted values.
 
-Let's verify with a numerical test.  Given the p-value, we fail to reject 
+Let's verify with a numerical test.  
+
+$H_0$: There's constant variance in the data.
+
+$H_A$: There's no constant variance in the data.
+
+Given the p-value, we fail to reject 
 the null hypothesis that there's homoskedasticity in the data.
 ```{r}
 bptest(lm_reduced)
@@ -352,7 +358,13 @@ the normal line, although the tail ends of the data distribution do deviate
 significantly from the normal line.  Thus, we do have some violation of
 the assumption of normally distributed residuals here.
 
-Let's check with a numeric test.  We reject the null hypothesis that the residuals
+Let's check with a numeric test.  
+
+$H_0$: The residuals follow a normal distribution.
+
+$H_A$: The residuals don't follow a normal distribution.
+
+We fail to reject the null hypothesis that the residuals
 follow a normal distribution.
 ```{r}
 shapiro.test(rstandard(lm_reduced))
@@ -365,7 +377,7 @@ round(vif(lm_reduced),2)
 ```
 
 For ShareWomen, we can see that there are some issues with multicollinearity with
-the predictor "ShareWomen" as we expect that the standard erorr for this predictor 
+the predictor "ShareWomen" as we expect that the standard error for this predictor 
 would be roughly $\sqrt{5.21}=2.28$ times larger than it would be without 
 collinearity (esp as the cutoff for VIF is 5 as a rule of thumb)
 
@@ -387,12 +399,12 @@ ggplot(mapping=aes(x=hatvalues(lm_reduced), y=rstandard(lm_reduced))) +
 
 Find any points with high leverage
 ```{r}
-dat1[which(hatvalues(lm_reduced) > h_cutoff),]
+dat1[which(hatvalues(lm_reduced) > h_cutoff),-c(1,2)]
 ```
 
 Find any point with high residuals
 ```{r}
-dat1[which(abs(rstandard(lm_reduced)) > 2),]
+dat1[which(abs(rstandard(lm_reduced)) > 2),-c(1,2)]
 ```
 
 Looking at the table above, it looks like "Petroleum Engineering",
