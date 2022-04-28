@@ -8,6 +8,9 @@ output:
 ---
 
 # Introduction
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 30)
+```
 
 ```{r echo=FALSE}
 dat1 <- read.csv("women-stem.csv")
@@ -108,15 +111,12 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
 `Median` wage of the individual majors ranged from $\$26,000$ for Zoology  to $\$110,000$ for Petroleum Engineering ($Mdn = \$44350, M = \$46118$) . 
 
 ```{r echo=FALSE, include=FALSE}
-
-
 summary(dat2$Median)
 ```
 
 We have set `Major_category` as a factor with the following levels:
 
 ```{r echo=FALSE,include=FALSE}
-
 #set major category as a factor
 dat2$Major_category <- as.factor(dat2$Major_category)
 levels(dat2$Major_category)
@@ -146,22 +146,22 @@ Based on our boxplot, we noticed there may be a significant difference between m
 
 $H_0:\alpha_1=\alpha_2=\alpha_3=\alpha_4=\alpha_5= 0$ 
 
-$H_1:\alpha_i\ne 0, i=1,2...,5$ 
+$H_A:\alpha_i\ne 0, i=1,2...,5$ 
 
 ```{r echo=FALSE, include=FALSE}
 # anova of major categories
 anova(lm(Median~Major_category,data=dat2))
 ```
 
-Based on our one-way ANOVA, we reject the null hypothesis and conclude that there was a statistically significant difference in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
+Based on our one-way ANOVA, we reject the null hypothesis and conclude that there are statistically significant differences in Median Wages between Major Categories $(F(4, 71) = [16.71], p = [0.00000001013])$.
 
-#
+# Median Wage by Major Category w/ Consideration for ShareWomen
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Got the outliers
 outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
 dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +
-  geom_jitter(alpha = 1/5) +# make circle transparent to show overlap
+  geom_jitter(alpha = 1/4) +# make circle transparent to show overlap
   theme(axis.text.x = element_text(angle=30, vjust=0.65),
         plot.title = element_text(hjust=0.5),
         plot.subtitle = element_text(hjust=0.5),
@@ -175,7 +175,7 @@ dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWo
 
 
 
-#
+# Further Cleaning
 
 * For our analysis, we also removed the columns `Major_code` and `Rank`  as they aren’t relevant predictors for our purposes.
 
@@ -198,21 +198,14 @@ pairs(Median~., data=dat2[,-c(1)])
 
 * There may be an issues of multicollinearity between `Total`, `Men`, `Women` and `ShareWomen`, so we will run some analyses to assess which of these predictors could be removed from our model.
 
-# 
+# Correlation Matrix
 
 ```{r echo=FALSE}
 corr_matrix <- cor(dat2[,-c(1)])
 corrp.mat <- cor_pmat(dat2[,-c(1)])
-ggcorrplot(corr_matrix, hc.order=T, lab=T)
+ggcorrplot(corr_matrix, hc.order=T, lab=T, 
+           colors= c("white","lightskyblue2","dodgerblue4"))
 ```
-
-
-# Multicollinearity
-
-```{r}
-# test for multicollinearity
-```
-
 
 
 # Methods and Results: Checking Assumptions
@@ -221,7 +214,8 @@ Before beginning our analysis, we began by exploring the normality within our re
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
  dat2 %>% ggplot(mapping=aes(x=(Median))) + geom_histogram(bin.width=5000) +
-  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red")
+  geom_density(aes(y=..density.. * (nrow(dat2) * 5000)), color="red") + 
+  labs(y="count")
 ```
 
 
@@ -231,7 +225,7 @@ Before beginning our analysis, we began by exploring the normality within our re
 We notices that there was some skewing, so we decided to do a Box-Cox test to see if a transformation is necessary.
 
 ```{r echo=FALSE}
- lm_full <- lm(Median~.,data=dat2)
+lm_full <- lm(Median~.,data=dat2)
 boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 ```
 
@@ -241,76 +235,62 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 summary(powerTransform(lm_full))
 ```
 
-Our rounded power is -1 so we wouldn’t need to transform the data. Also, -1 as a power would make the data difficult to interpret.
-
+Our rounded power is -1 so we will do an inverse transformation of the response
+`Median`.
 
 
 # Building Predicitive Model
 
-* We started with an additive model but it removed to many variables so we switched to a model with interactions.
+We started with the full additive model but it removed to many variables so we decided switched to a model with interactions.
 
-* After running a step-wise selection of our model, we were left with the following model.
-
-
-```{r echo=FALSE, include=FALSE}
+```{r include=F, echo=F}
+options(scipen=4)
 #interaction model
-lm1 <- lm(Median ~., data=dat2[-c(2)])
-summary(lm1)
+lm1 <- lm((Median^(-1)) ~., data=dat2[-c(2)])
+summary(step(lm1))
 
 ```
 
+![](output_building_predictive_model_slide.png){width=50%} 
 
-#
+# Building Predicitive Model w/ Interaction
 
-Since the additive model removed all put one predictor, we rerun the the model with interactions
+Since the additive model removed all but one predictor, we reran the model with interactions
 
-```{r include=FALSE, echo=FALSE}
+```{r echo=T, include=F}
+options(scipen=4)
 #interaction model
-lm1 <- lm(Median ~(.)^2, data=dat2[-c(2)])
-summary(lm1)
+lm1 <- lm((Median^(-1)) ~(.)^2, data=dat2[-c(2)])
+summary(lm1) 
 ```
 
 
-#
-
+# Running step-wise to reduce the model's AIC
+![](slide_run_step_wise.png){width=70%} 
 ```{r echo=FALSE, include=FALSE}
 
 #step-wise selection
 lm2 <- step(lm1)
-
-
+summary(lm( (Median^(-1))~Major_category + Men + Women + ShareWomen + 
+              Men:ShareWomen, data=dat2[-c(2)]))
 ```
 
 
-#
-
-```{r echo=FALSE, include=FALSE}
+# Test significance of predictor `Women`
+![](slide_test_sig_women.png){width=70%} 
+```{r echo=F, include=F}
 # create reduced model
-lm_reduced <- lm(Median ~ Major_category + Men + ShareWomen + Men:ShareWomen,
+lm_reduced <- lm((Median^(-1)) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
                  data=dat2[-c(2)])
 
 #anova reduced vs full
 anova(lm_reduced, lm2)
-summary(lm_reduced)
 ```
 
 
-#
-
-```{r include=FALSE}
-#interaction model
-lm1 <- lm(log(Median) ~(.)^2, data=dat2[-c(2)])
-summary(lm1)
-
-#step-wise selection
-lm2 <- step(lm1)
-
-# create reduced model
-lm_reduced <- lm(log(Median) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
-                 data=dat2[-c(2)])
-
-#anova reduced vs full
-anova(lm_reduced, lm2)
+# Getting the reduced final model
+![](slide_get_reduce_model.png){width=70%} 
+```{r echo=F, include=F}
 summary(lm_reduced)
 ```
 
@@ -333,8 +313,23 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 
 ```
 
+# Model Diagnostics (Numeric Tests)
+* Testing constance variance
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+bptest(lm_reduced)
+```
 
-# Cross Validation
+* Testing normality of residuals
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+shapiro.test(rstandard(lm_reduced))
+```
+
+
+# Multicollinearity (VIF)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+round(vif(lm_reduced),2)
+```
 
 
 # Conclusion
