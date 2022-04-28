@@ -270,8 +270,8 @@ summary(lm1)
 ```
 
 
-# Running step-wise to reduce the model's AIC
-![](slide_run_step_wise.png){width=90%} 
+## Running step-wise to reduce the model's AIC
+![](slide_run_step_wise.png){width=80%} 
 ```{r echo=FALSE, include=FALSE}
 
 #step-wise selection
