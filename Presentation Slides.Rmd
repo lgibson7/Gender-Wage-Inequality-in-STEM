@@ -301,6 +301,31 @@ summary(lm_reduced)
 
 $Median^{-1}=2.71e^{-5}-3.441e^{-6}x_1-8.87e^{-6}x_2-3.991e^{-7}x_3-3.09e^{-6}x_4-4.14e^{-11}x_5+1.08e^{-6}x_6+8.97e^{-11}x_7$
 
+# Predictive power
+
+
+
+```{r echo=FALSE, include=FALSE}
+new_x<-data.frame(Major_category="Biology & Life Science", Men=515, ShareWomen=0.71)
+Median_Pharmocology<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+Median_Pharmocology
+```
+
+Here we do a prediction interval for `Median`$^{-1}$ for pharmacology then take the inverse so that our response is in our original units.
+```{r echo=F}
+Median_Pharmocology^-1
+```
+
+Looking at the actual `Median` for pharmacology, we see that the actual response is within our prediction interval of (27984, 499917).
+```{r echo=FALSE, include=FALSE}
+dat1[36,3:9]
+```
+
+|Major|Major Category|Men|Share Women| Median|
+|-|-|-|-|-|
+|Pharmacology|Biology & Life Science|515|0.71|45000|
+
+
 # Model Diagnostics
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
