@@ -287,7 +287,8 @@ summary(lm1)
 Do step-wise function to find best model (one with lowest AIC)
 ```{r}
 lm2 <- step(lm1)
-summary(lm2)
+summary(lm( (Median^(-1))~Major_category + Men + Women + ShareWomen + 
+              Men:ShareWomen, data=dat2[-c(2)]))
 ```
 
 Do partial F-test to see if we can remove Women from data.
