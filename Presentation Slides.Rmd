@@ -256,7 +256,7 @@ summary(step(lm1))
 
 ```
 
-![](output_building_predictive_model_slide.png){width=50%} 
+![](output_building_predictive_model_slide.png){width=90%} 
 
 # Building Predicitive Model w/ Interaction
 
@@ -271,7 +271,7 @@ summary(lm1)
 
 
 # Running step-wise to reduce the model's AIC
-![](slide_run_step_wise.png){width=70%} 
+![](slide_run_step_wise.png){width=90%} 
 ```{r echo=FALSE, include=FALSE}
 
 #step-wise selection
@@ -282,7 +282,7 @@ summary(lm( (Median^(-1))~Major_category + Men + Women + ShareWomen +
 
 
 # Test significance of predictor `Women`
-![](slide_test_sig_women.png){width=70%} 
+![](slide_test_sig_women.png){width=90%} 
 ```{r echo=F, include=F}
 # create reduced model
 lm_reduced <- lm((Median^(-1)) ~ Major_category + Men + ShareWomen + Men:ShareWomen,
@@ -294,12 +294,12 @@ anova(lm_reduced, lm2)
 
 
 # Getting the reduced final model
-![](slide_get_reduce_model.png){width=70%} 
+![](slide_get_reduce_model.png){width=90%} 
 ```{r echo=F, include=F}
 summary(lm_reduced)
 ```
 
-$Median^{-1} = 2.71 \times 10^{-5} -3.441 \times 10^{-6}x_1 - 8.87 \times 10^{-6} x_2 -3.991 \times 10^{-7} x_3 -3.09\times 10^{-6}x_4 -4.14 \times 10^{-11}x_5 +1.08 \times 10^{-6}x_6 +8.97\times 10^{-11} x_5 \times x_6$
+$Y^{-1} = 2.71 \cdot 10^{-5} -3.441 \cdot 10^{-6}x_1 - 8.87 \cdot 10^{-6} x_2 -3.991 \cdot 10^{-7} x_3 -3.09\cdot 10^{-6}x_4 -4.14 \cdot 10^{-11}x_5 +1.08 \cdot 10^{-6}x_6 +8.97\cdot 10^{-11} x_5 \cdot x_6$
 
 # Predictive power
 
@@ -388,8 +388,6 @@ In conclusion
 Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration.* 3rd ed., Pearson, 2013.
 
 Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide.* Three Rivers Press, 2010. 
-
-
 
 
 
