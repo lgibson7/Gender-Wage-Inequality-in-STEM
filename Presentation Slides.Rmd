@@ -320,7 +320,7 @@ Here we do a prediction interval for `Median`$^{-1}$ for Statistics & Decision S
 Median_Stats^-1
 ```
 
-Looking at the actual `Median` for Statistics & Decision Sciences, we see that the actual response is within our prediction interval of (309997,61595).
+Looking at the actual `Median` for Statistics & Decision Sciences, we see that the actual response is within our prediction interval of (30997,61595).
 ```{r echo=FALSE, include=FALSE}
 dat1[35,3:9]
 ```
