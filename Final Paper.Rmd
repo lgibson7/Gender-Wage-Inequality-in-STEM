@@ -5,6 +5,18 @@ date: "April 28, 2022"
 output: pdf_document
 header-includes: \usepackage{setspace}\doublespacing
 ---
+# Introduction
+```{r set-options, echo=FALSE, cache=FALSE}
+#options(width = 30)
+```
+
+```{r echo=FALSE}
+dat1 <- read.csv("women-stem.csv")
+library(pacman)
+suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, 
+                        ggrepel, faraway, ggcorrplot))
+options(scipen = 100) # remove scientific notation
+```
 
 
 Final Project
@@ -25,8 +37,28 @@ Spring 2022
 
 \setlength\parindent{24pt} The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM). For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e., Engineering, Health Science, etc.), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information. Within the STEM majors, median wage ranged from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering (Mdn = $\$44350$, M = $\$46118$).  Data showed that the biggest proportion of women chose field related to Health and men chose field related to Engineering (Figure 1). This is congruent with the gender roles and personality characteristics associated with women, as well as men. 
 
-```{r}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+#Figure 1:Gender proportions per major category.
+# remove Rank, Major_code, and Major
+dat2 <- dat1[,-c(1,2,3)] 
+# Get totals for men and women for each major category
+dat_stats <- rbind(
+  # Get totals for men
+  dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Men), Proportion=Grand_Total/sum(Total)) %>%
+mutate(Sex="Men", labelpos=Proportion/2),
+# Get totals for women
+dat2 %>% group_by(Major_category) %>%summarize(Grand_Total = sum(Women), Proportion=Grand_Total/sum(Total)) %>%
+  mutate(Sex="Women", labelpos=1 - (Proportion/2))) %>% mutate(Sex = Sex %>% factor(levels=c("Women","Men")))
+#dat_stats
 
+dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
+  stat_summary(geom = "bar", position="fill") +# stack side by side bars
+  theme(axis.text.x=element_text(angle = 7.5),# get x axes labels to fit
+        plot.title=element_text(size=17, hjust=0.5)) +# center title
+  geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x="Major Category", y="Proportion of Gender (%)",
+       title="Gender Proportions per Major Category")
 ```
 
 \setlength\parindent{24pt} The data dimensions are seventy-six majors in STEM fields (rows) and nine factors (columns), such as: Rank, Major_code, Major, Major_category, Total, Men, Women, ShareWomen, Median. First, Major_category was set as a factor to explore the variation of share of women within major categories and the median wages each major category earns. This boxplot also allows to identify outliers in median wages within the major categories. 
@@ -36,30 +68,56 @@ Spring 2022
 
 
 ```{r}
+#Figure 2: Median wage by major category.
+bx_plt <- dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
+    labs(x="Major Category", y="Median Salary ($ 1000)") + 
+  theme(axis.text.x=element_text(angle=90)) + scale_y_continuous(breaks=c(40000,60000,80000,100000),
+                     labels=c("40","60","80","100"))
+  
+# Got the outliers
+outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
 
+jitter_plt <- dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +
+  geom_jitter(alpha = 1/4) +# make circle transparent to show overlap
+  theme(axis.text.x = element_text(angle=90, vjust=0.65),
+        plot.subtitle = element_text(hjust=0.5),
+        legend.position = c(0.92,0.82)) +
+  geom_text(data=outlier_pts, aes(label=Major, size=0.089),nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers
+  labs(x="Major Category", y="") +
+  guides(color=FALSE, # remove Major_category legend, remove "a" from legend
+         size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8)))) +
+    scale_y_continuous(breaks=c(40000,60000,80000,100000),
+                     labels=c("40","60","80","100"))
+
+ggarrange(bx_plt, jitter_plt, ncol=2)
 ```
+#Figure 2: Median wage by major category.
+
 
 \setlength\parindent{24pt} After removing the columns Major_code and Rank from our data that were irrelevant to this project, a scatterplot matrix revealed that there seemed to be a negative association between ShareWomen and Median wage supporting the research questions. Also, showed that may be an issue of multicollinearity among Total, Men, Women and ShareWomen factors which it makes sense since the Total factor is compose of the factor Men and Women. Likewise, ShareWomen is a proportion of women within the fields (see figure 4).
 
 ```{r}
+#Figure 3: Scatterplot matrix and heat map for correlation insights.
+
 
 ```
 
 \setlength\parindent{24pt} The median wage was select as the response variable.  During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary (figure 4). The rounded power was a negative one, suggesting an inverse transformation of the response Median wage to be required to help with skewedness but this would complicate the interpretability of the model.
 
-```{r}
-# Box-Cox
+```{r echo=FALSE}
+lm_full <- lm(Median~.,data=dat2)
+boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 ```
-
 
 \setlength\parindent{24pt} The full addictive model is described by $Y= \beta_0 + \beta_Total + \beta_Men + \beta_Women + \beta_ShareWomen + \beta_Majorcategory + \epsilon$. This step removed too many predictors; so, it was decided to check for interactions to see if this new model would help with this issue. Then a step-wise process was run to reduce the model’s AIC. This process allowed to remove the predictor women because the p-value was large (p = 0.7394 > $\alpha$ = 0.05). The final reduced model is described by: $Y^{-1}= (2.71 \cdot 10)^{-5} - (3.441 \cdot 10)^{-6} x_1 - (8.87 \cdot 10)^{-6} x_2 - (3.991 \cdot 10)^{-7} x_3 - (3.09 \cdot 10)^{-6} x_4 - (4.14 \cdot 10)^{-11} x_5 + (1.08 \cdot 10)^{-6} x_6 + (8.977 \cdot 10)^{-11} x_5 + x_6$.
 
 
 \setlength\parindent{24pt} To see if the goal of creating a predictive model for median wages was achieved, a prediction interval for (Median wage)$^{-1}$ for Statistics and Decision Sciences was run. Also, to better understand the results the inverse was taken to see the answer in the original units (see table 1).
 
-```{r}
-#prediction
-```
+
+|Major       |Major Category|Men|Share Women| Median|
+|-------|-------|---|-----------|-------|
+|Statistics & Decision Science|Computers & Mathematics|2960|0.5265|45000|
 
 
 \setlength\parindent{24pt} 
