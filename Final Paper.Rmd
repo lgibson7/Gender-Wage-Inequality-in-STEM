@@ -1,33 +1,68 @@
 ---
 title: "Gender Wage Inequality in STEM"
 author: "Lydia Gibson, Sara Hatter & Ken Vu"
-date: "May 10, 2022"
-header-includes:
-- \usepackage{fancyhdr}
-- \pagestyle{fancy}
-- \fancyhead[CO,CE]{Gender Wage Inequality in STEM}
-- \fancyfoot[CO,CE]{Linear and Logisitic Regression, California State University East Bay}
-- \fancyfoot[LE,RO]{\thepage}
+date: "April 28, 2022"
 output: pdf_document
+header-includes: \usepackage{setspace}\doublespacing
 ---
 
 
+Final Project
 
+STAT 632: Linear and Logistic Regression
+
+Dr. Joshua Kerr
+
+California State University, East Bay
+
+Spring 2022
 
 
 \break
 
-# Introduction. 
+\setlength\parindent{24pt} Do we choose our career path based on gender-based social roles or based on top salary? Although many countries, such as China, have incorporated women into their labor power to become a powerful economy , women still choose careers that are more in sync to gender stereotype. Undoubtedly, personality characteristics associated with women, are sympathy, kindness, and warmth, and reflect a concern about other people. However, the traits associated to men are achievement orientation and ambitiousness, and concern about accomplishing tasks. These characteristics are very noticeable in the stereotypical association of men in the worker role and women in the family role . More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower. Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
 
-* Describe the main research questions and goals of your data analysis and statistical modeling. 1-2 paragraphs should be sufficient.
 
-# Data Description. 
+\setlength\parindent{24pt} The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM). For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e., Engineering, Health Science, etc.), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information. Within the STEM majors, median wage ranged from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering (Mdn = $\$44350$, M = $\$46118$).  Data showed that the biggest proportion of women chose field related to Health and men chose field related to Engineering (Figure 1). This is congruent with the gender roles and personality characteristics associated with women, as well as men. 
 
-* Briefly describe your data. What is the source? What are the response and potential predictor variables? What is the dimension (number of rows and columns)? In this section, also present and discuss relevant summary statistics and graphical displays of your data set (e.g., scatterplots, box plots). Be selective about the descriptive statistics that you decide to include.
+```{r}
 
-# Methods and Results. 
+```
 
-* Describe the methods used to estimate and select your regression model, and present the major modeling results (e.g., regression sum- mary table, diagnostics plots, cross-validation results). Provide a concise description of the results and your interpretation.
+\setlength\parindent{24pt} The data dimensions are seventy-six majors in STEM fields (rows) and nine factors (columns), such as: Rank, Major_code, Major, Major_category, Total, Men, Women, ShareWomen, Median. First, Major_category was set as a factor to explore the variation of share of women within major categories and the median wages each major category earns. This boxplot also allows to identify outliers in median wages within the major categories. 
+
+
+\setlength\parindent{24pt} The Boxplot confirmed that the engineering contains an outlier in Petroleum Engineering, as well as Astronomy and Astrophysics. Both fields with less women compared to men. This procedure showed that there may be a significant difference between median wage by major category leading to run an ANOVA to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA supported the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]). 
+
+
+```{r}
+
+```
+
+\setlength\parindent{24pt} After removing the columns Major_code and Rank from our data that were irrelevant to this project, a scatterplot matrix revealed that there seemed to be a negative association between ShareWomen and Median wage supporting the research questions. Also, showed that may be an issue of multicollinearity among Total, Men, Women and ShareWomen factors which it makes sense since the Total factor is compose of the factor Men and Women. Likewise, ShareWomen is a proportion of women within the fields (see figure 4).
+
+```{r}
+
+```
+
+\setlength\parindent{24pt} The median wage was select as the response variable.  During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary (figure 4). The rounded power was a negative one, suggesting an inverse transformation of the response Median wage to be required to help with skewedness but this would complicate the interpretability of the model.
+
+```{r}
+# Box-Cox
+```
+
+
+\setlength\parindent{24pt} The full addictive model is described by $Y= \beta_0 + \beta_Total + \beta_Men + \beta_Women + \beta_ShareWomen + \beta_Majorcategory + \epsilon$. This step removed too many predictors; so, it was decided to check for interactions to see if this new model would help with this issue. Then a step-wise process was run to reduce the model’s AIC. This process allowed to remove the predictor women because the p-value was large (p = 0.7394 > $\alpha$ = 0.05). The final reduced model is described by: $Y^{-1}= (2.71 \cdot 10)^{-5} - (3.441 \cdot 10)^{-6} x_1 - (8.87 \cdot 10)^{-6} x_2 - (3.991 \cdot 10)^{-7} x_3 - (3.09 \cdot 10)^{-6} x_4 - (4.14 \cdot 10)^{-11} x_5 + (1.08 \cdot 10)^{-6} x_6 + (8.977 \cdot 10)^{-11} x_5 + x_6$.
+
+
+\setlength\parindent{24pt} To see if the goal of creating a predictive model for median wages was achieved, a prediction interval for (Median wage)$^{-1}$ for Statistics and Decision Sciences was run. Also, to better understand the results the inverse was taken to see the answer in the original units (see table 1).
+
+```{r}
+#prediction
+```
+
+
+\setlength\parindent{24pt} 
 
 # Conclusion. 
 
@@ -36,10 +71,6 @@ output: pdf_document
 \break
 
 # Bibliography
-
-Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration.* 3rd ed., Pearson, 2013.
-
-Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide.* Three Rivers Press, 2010. 
 
 ## Code Appendix. 
 
