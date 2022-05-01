@@ -5,7 +5,7 @@ date: "April 28, 2022"
 output: pdf_document
 header-includes: \usepackage{setspace}\doublespacing
 ---
-# Introduction
+
 ```{r set-options, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
 #options(width = 30)
 ```
@@ -117,8 +117,13 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 ***Figure 4:*** Box-Cox with a negative one as a power.
 
 
-\setlength\parindent{24pt} The full addictive model is described by $Y= \beta_0 + \beta_Total + \beta_Men + \beta_Women + \beta_ShareWomen + \beta_Majorcategory + \epsilon$. This step removed too many predictors; so, it was decided to check for interactions to see if this new model would help with this issue. Then a step-wise process was run to reduce the model’s AIC. This process allowed to remove the predictor women because the p-value was large (p = 0.7394 > $\alpha$ = 0.05). The final reduced model is described by: $Y^{-1}= (2.71 \cdot 10)^{-5} - (3.441 \cdot 10)^{-6} x_1 - (8.87 \cdot 10)^{-6} x_2 - (3.991 \cdot 10)^{-7} x_3 - (3.09 \cdot 10)^{-6} x_4 - (4.14 \cdot 10)^{-11} x_5 + (1.08 \cdot 10)^{-6} x_6 + (8.977 \cdot 10)^{-11} x_5 + x_6$.
+\setlength\parindent{24pt} The full addictive model is described by:
+$$Y = \beta_0 + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \beta_{Majorcategory} + \epsilon$$. 
+\setlength\parindent{24pt} This step removed too many predictors; so, it was decided to check for interactions to see if this new model would help with this issue. Then a step-wise process was run to reduce the model’s AIC. This process allowed to remove the predictor women because the p-value was large (p = 0.7394 > $\alpha$ = 0.05). 
+The final reduced model is described by: 
+\scriptsize$$Y^{-1}= 2.71 \cdot (10)^{-5} - 3.441 \cdot (10)^{-6} x_1 - 8.87 \cdot (10)^{-6} x_2 - 3.991 \cdot (10)^{-7} x_3 - 3.09 \cdot (10)^{-6} x_4 - 4.14 \cdot (10)^{-11} x_5 + 1.08 \cdot (10)^{-6} x_6 \cdot 8.977 \cdot (10)^{-11} x_5 + x_6$$.
 
+\normalsize
 
 \setlength\parindent{24pt} To see if the goal of creating a predictive model for median wages was achieved, a prediction interval for (Median wage)$^{-1}$ for Statistics and Decision Sciences was run. Also, to better understand the results the inverse was taken to see the answer in the original units (see table 1).
 
@@ -141,7 +146,7 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 # Bibliography
 
 
-\setlength\parindent{24pt} Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A   Psychological Exploration*. 3rd ed., Pearson, 2013. 
+Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A   Psychological Exploration*. 3rd ed., Pearson, 2013. 
 
 Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide*. Three Rivers Press, 2010. 
 
