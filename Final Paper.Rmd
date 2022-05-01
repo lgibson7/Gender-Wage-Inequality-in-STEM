@@ -6,15 +6,15 @@ output: pdf_document
 header-includes: \usepackage{setspace}\doublespacing
 ---
 # Introduction
-```{r set-options, echo=FALSE, cache=FALSE}
+```{r set-options, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
 #options(width = 30)
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 dat1 <- read.csv("women-stem.csv")
 library(pacman)
 suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest, 
-                        ggrepel, faraway, ggcorrplot))
+                        ggrepel, faraway, ggcorrplot, GGally))
 options(scipen = 100) # remove scientific notation
 ```
 
@@ -38,7 +38,7 @@ Spring 2022
 \setlength\parindent{24pt} The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only concern STEM majors (particularly with an interest in women majoring in STEM). For each row in the data set (which represents one major), there’s a collection of details and statistics about the major, such as the type of major (i.e., Engineering, Health Science, etc.), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information. Within the STEM majors, median wage ranged from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering (Mdn = $\$44350$, M = $\$46118$).  Data showed that the biggest proportion of women chose field related to Health and men chose field related to Engineering (Figure 1). This is congruent with the gender roles and personality characteristics associated with women, as well as men. 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-#Figure 1:Gender proportions per major category.
+
 # remove Rank, Major_code, and Major
 dat2 <- dat1[,-c(1,2,3)] 
 # Get totals for men and women for each major category
@@ -61,14 +61,16 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
        title="Gender Proportions per Major Category")
 ```
 
+***Figure 1:*** Gender proportions per major category.
+
 \setlength\parindent{24pt} The data dimensions are seventy-six majors in STEM fields (rows) and nine factors (columns), such as: Rank, Major_code, Major, Major_category, Total, Men, Women, ShareWomen, Median. First, Major_category was set as a factor to explore the variation of share of women within major categories and the median wages each major category earns. This boxplot also allows to identify outliers in median wages within the major categories. 
 
 
 \setlength\parindent{24pt} The Boxplot confirmed that the engineering contains an outlier in Petroleum Engineering, as well as Astronomy and Astrophysics. Both fields with less women compared to men. This procedure showed that there may be a significant difference between median wage by major category leading to run an ANOVA to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA supported the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]). 
 
 
-```{r}
-#Figure 2: Median wage by major category.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
 bx_plt <- dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
     labs(x="Major Category", y="Median Salary ($ 1000)") + 
   theme(axis.text.x=element_text(angle=90)) + scale_y_continuous(breaks=c(40000,60000,80000,100000),
@@ -91,23 +93,29 @@ jitter_plt <- dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category
 
 ggarrange(bx_plt, jitter_plt, ncol=2)
 ```
-#Figure 2: Median wage by major category.
+***Figure 2:*** Median wage by major category.
 
 
 \setlength\parindent{24pt} After removing the columns Major_code and Rank from our data that were irrelevant to this project, a scatterplot matrix revealed that there seemed to be a negative association between ShareWomen and Median wage supporting the research questions. Also, showed that may be an issue of multicollinearity among Total, Men, Women and ShareWomen factors which it makes sense since the Total factor is compose of the factor Men and Women. Likewise, ShareWomen is a proportion of women within the fields (see figure 4).
 
-```{r}
-#Figure 3: Scatterplot matrix and heat map for correlation insights.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggpairs(dat2[,c(6,1:5)], c(1,3:6))
 
 
 ```
+
+***Figure 3:*** Scatterplot matrix for correlation insights.
+
 
 \setlength\parindent{24pt} The median wage was select as the response variable.  During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary (figure 4). The rounded power was a negative one, suggesting an inverse transformation of the response Median wage to be required to help with skewedness but this would complicate the interpretability of the model.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 lm_full <- lm(Median~.,data=dat2)
 boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 ```
+
+***Figure 4:*** Box-Cox with a negative one as a power.
+
 
 \setlength\parindent{24pt} The full addictive model is described by $Y= \beta_0 + \beta_Total + \beta_Men + \beta_Women + \beta_ShareWomen + \beta_Majorcategory + \epsilon$. This step removed too many predictors; so, it was decided to check for interactions to see if this new model would help with this issue. Then a step-wise process was run to reduce the model’s AIC. This process allowed to remove the predictor women because the p-value was large (p = 0.7394 > $\alpha$ = 0.05). The final reduced model is described by: $Y^{-1}= (2.71 \cdot 10)^{-5} - (3.441 \cdot 10)^{-6} x_1 - (8.87 \cdot 10)^{-6} x_2 - (3.991 \cdot 10)^{-7} x_3 - (3.09 \cdot 10)^{-6} x_4 - (4.14 \cdot 10)^{-11} x_5 + (1.08 \cdot 10)^{-6} x_6 + (8.977 \cdot 10)^{-11} x_5 + x_6$.
 
@@ -115,9 +123,11 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 \setlength\parindent{24pt} To see if the goal of creating a predictive model for median wages was achieved, a prediction interval for (Median wage)$^{-1}$ for Statistics and Decision Sciences was run. Also, to better understand the results the inverse was taken to see the answer in the original units (see table 1).
 
 
-|Major       |Major Category|Men|Share Women| Median|
+|**Major**       |**Major Category**|**Men**|**Share Women**| **Median**|
 |-------|-------|---|-----------|-------|
 |Statistics & Decision Science|Computers & Mathematics|2960|0.5265|45000|
+
+***Table 1:*** The median wage for Statistics and Decision Science is $45,000.
 
 
 \setlength\parindent{24pt} 
@@ -129,6 +139,12 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 \break
 
 # Bibliography
+
+
+\setlength\parindent{24pt} Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A   Psychological Exploration*. 3rd ed., Pearson, 2013. 
+
+Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide*. Three Rivers Press, 2010. 
+
 
 ## Code Appendix. 
 
