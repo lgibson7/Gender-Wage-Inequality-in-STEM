@@ -73,8 +73,7 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
         plot.title=element_text(size=17, hjust=0.5)) +# center title
   geom_text(aes(label = paste0(round(100*Proportion,2),"%"),y=labelpos),size = 3,) +
   scale_y_continuous(labels = scales::percent_format()) +
-  labs(x="Major Category", y="Proportion of Gender (%)",
-       title="Gender Proportions per Major Category")
+  labs(x="Major Category", y="Proportion of Gender (%)")
 ```
 
 ***Figure 1:*** Gender proportions per major category.
