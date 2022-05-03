@@ -1,8 +1,6 @@
 ---
 title:  |
-  | \vspace{5cm} \LARGE \bf{Gender Wage Inequality in STEM}
-author: "Lydia Gibson, Sara Hatter & Ken Vu"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+  | \vspace{6cm} \Large \bf{Gender Wage Inequality in STEM}
 output: 
   pdf_document:
 toc-title: "Table of Contents"
@@ -20,15 +18,19 @@ suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest,
 options(scipen = 100) # remove scientific notation
 ```
 
-Final Project
+\vspace{-7truemm}
 
-STAT 632: Linear and Logistic Regression
+\normalsize
 
-Dr. Joshua Kerr
+\centering Lydia Gibson, Sara Hatter and Ken Vu
 
-California State University, East Bay
+\centering Department of Statistics and Biostatistics, CSU East Bay
 
-Spring 2022
+\centering STAT 632 - Linear and Logistic Regression
+
+\centering Dr. Joshua Kerr
+
+\centering May 02, 2022
 
 \break
 
@@ -241,7 +243,7 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 
 # Bibliography {style="h1, h2, h3 {   text-align: center; }"}
 
-Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration*. 3rd ed., Pearson, 2013.
+        Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration*. 3rd ed., Pearson, 2013.
 
 Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide*. Three Rivers Press, 2010.
 
