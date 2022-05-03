@@ -2,14 +2,18 @@
 title:  |
   | \vspace{5cm} \LARGE \bf{Gender Wage Inequality in STEM}
 author: "Lydia Gibson, Sara Hatter & Ken Vu"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+date: "STAT 632, California State University East Bay, Spring 2022"
 output: 
   pdf_document:
 toc-title: "Table of Contents"
 header-includes: 
 - \usepackage{setspace}\doublespacing
 - \usepackage{booktabs}
-- \usepackage{sectsty} \sectionfont{\centering}
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Gibson, Hatter, Vu}
+- \fancyfoot[CO,CE]{Gender Wage Inequality in STEM}
+- \fancyfoot[LE,RO]{\thepage}
 ---
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
@@ -20,15 +24,6 @@ suppressWarnings(p_load(dplyr, ggplot2, ggpubr, scales, MASS, car, lmtest,
 options(scipen = 100) # remove scientific notation
 ```
 
-Final Project
-
-STAT 632: Linear and Logistic Regression
-
-Dr. Joshua Kerr
-
-California State University, East Bay
-
-Spring 2022
 
 \break
 
@@ -238,6 +233,8 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 -   Since this project only looked at STEM majors, it would be interesting\
     to see if these same variables (i.e. `Major_category`, `Men`,\
     `ShareWomen`) are associated with median wage for all majors.
+
+\break
 
 # Bibliography {style="h1, h2, h3 {   text-align: center; }"}
 
