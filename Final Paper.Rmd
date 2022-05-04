@@ -83,17 +83,19 @@ Along with the stacked barplot, a boxplot was generated to help identify outlier
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-bx_plt <- dat2 %>% ggplot(aes(x=Major_category,y=Median)) + geom_boxplot() +
+bx_plt <- dat2 %>% ggplot(aes(x=Major_category,y=Median, fill=Major_category)) + geom_boxplot( show.legend=FALSE) +
     labs(x="", y="Median Salary ($ 1000)") + 
-  theme(axis.text.x=element_text(angle=270)) + scale_y_continuous(breaks=c(40000,60000,80000,100000),
-                     labels=c("40","60","80","100"))
+  theme(axis.text.x=element_text(angle=0)) + 
+  scale_y_continuous(breaks=c(40000,60000,80000,100000),
+                     labels=c("40","60","80","100")) +
+   scale_x_discrete(labels=c("[1]", "[2]", "[3]" , "[4]", "[5]"))
   
 # Got the outliers
 outlier_pts <- dat1 %>%filter(Median > 100000 |(Median > 60000 & Major_category == "Physical Sciences"))
 
 jitter_plt <- dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category, size=ShareWomen)) +
   geom_jitter(alpha = 1/4) +# make circle transparent to show overlap
-  theme(axis.text.x = element_text(angle=270, vjust=0.65),
+  theme(axis.text.x = element_text(angle=0, vjust=0.65),
         plot.subtitle = element_text(hjust=0.5),
         legend.position = c(0.92,0.82)) +
   geom_text(data=outlier_pts, aes(label=Major, size=0.089),nudge_y=2, vjust=-1.6, hjust=0.7) + # label outliers
@@ -101,16 +103,15 @@ jitter_plt <- dat1 %>%ggplot(aes(x=Major_category,y=Median, color=Major_category
   guides(color=FALSE, # remove Major_category legend, remove "a" from legend
          size=guide_legend(override.aes = list(alpha = 1, size = c(3,4.5,5.8)))) +
     scale_y_continuous(breaks=c(40000,60000,80000,100000),
-                     labels=c("40","60","80","100"))
+                     labels=c("40","60","80","100")) +
+    scale_x_discrete(labels=c("[1]", "[2]", "[3]" , "[4]", "[5]"))
 
 ggarrange(bx_plt, jitter_plt, ncol=2)
 ```
 
-***Figure 2:*** Median wage by major category. \newline
+***Figure 2:*** Median wage ($1000) by major category. Major categories: [1]Biology & Life Science, [2]Computers & Mathematics, [3]Engineering, [4]Health, [5]Physical Sciences.  \newline
 
 \setlength\parindent{24pt} Here, the boxplot confirmed that *Engineering* contains an outlier (i.e. "Petroleum Engineering") as well as another outlier for "Astronomy and Astrophysics". Both fields have less women compared to men. This procedure showed that there may be a significant difference between median wage by major category. Thus, ANOVA was done to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA test done supports the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]) \< $\alpha=0.05$.
-
-\newpage
 
 \setlength\parindent{24pt} Then, after removing the columns `Major_code` and `Rank` from our data (which were irrelevant to this project), a scatterplot matrix was created, which revealed that there seemed to be a negative association between `ShareWomen` and `Median` Also, the plot showed that there may be an issue of multicollinearity among `Total`, `Men`, `Women`, and `ShareWomen`. This observation makes sense since the column `Total` consists of the sum of the columns `Men` and `Women`. Likewise, `ShareWomen` refers to the proportion of women within the fields (see Figure 3). \newline
 
@@ -140,9 +141,9 @@ The resulting rounded power was -1, suggesting that an inverse transformation of
 
 ## a. Model Fitting
 
-\setlength\parindent{24pt}        The full addictive model is described by: $$Y = \beta_0 + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \beta_{Majorcategory} + \epsilon$$ \setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process aimed to remove the predictor women because the p-value was large (p = 0.7394 \> $\alpha$ = 0.05).
+\setlength\parindent{24pt}        The full addictive model is described by: $$Y = \beta_0 + \beta_{Major\_category} + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \epsilon$$ \setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process aimed to remove the predictor women because the p-value was large (p = 0.7394 \> $\alpha$ = 0.05).
 
-The final reduced model is described by: \scriptsize$$Y^{-1}= (2.71 \times 10^{-5}) - (3.44 \times10^{-6}) x_1 - (8.87 \times 10^{-6}) x_2 - (3.99 \times 10^{-7}) x_3 - (3.09 \times10^{-6}) x_4 - (4.14 \times 10^{-11}) x_5 + (1.08 \times 10^{-6}) x_6 + (8.98 \times 10^{-11}) x_5 \cdot x_6$$.
+The final reduced model is described by: $\widehat{Median^{-1}}= (2.71 \times 10^{-5}) - (3.44 \times10^{-6}) Computers \& Mathematics - (8.87 \times 10^{-6}) Engineering - (3.99 \times 10^{-7}) Health - (3.09 \times10^{-6}) Physical Sciences - (4.14 \times 10^{-11})Men + (1.08 \times 10^{-6}) ShareWomen + (8.98 \times 10^{-11}) Men:ShareWomen$.
 
 \normalsize
 
