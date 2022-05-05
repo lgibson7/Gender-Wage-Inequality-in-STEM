@@ -51,7 +51,7 @@ options(scipen = 100) # remove scientific notation
 
 ## b. Exploratory Data Analysis
 
-\setlength\parindent{24pt}        Through a stacked barplot of gender proportions per major category, the data showed that the biggest proportion of women chose fields related to *Health* and the biggest proportion of men chose fields related to *Engineering* (Figure 1). This is congruent with the gender roles and personality characteristics associated with women in addition to men. \newline
+\setlength\parindent{24pt}        Through a stacked barplot of gender proportions per major category, the data showed that the biggest proportion of women chose fields related to *Health* and the biggest proportion of men chose fields related to *Engineering* (Figure 1). This is congruent with the gender roles and personality characteristics associated with women in addition to men. Along with the stacked barplot, a boxplot was generated to help identify outliers in median wages within the major categories (see Figure 2). \newline
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -78,8 +78,7 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
 
 ***Figure 1:*** Gender proportions per major category.
 
-
-Along with the stacked barplot, a boxplot was generated to help identify outliers in median wages within the major categories (see Figure 2). \newline
+\setlength\parindent{24pt} Here, the boxplot confirmed that *Engineering* contains an outlier (i.e. "Petroleum Engineering") as well as another outlier for "Astronomy and Astrophysics". Both fields have less women compared to men. This procedure showed that there may be a significant difference between median wage by major category. Thus, ANOVA was done to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA test done supports the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]) \< $\alpha=0.05$.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -111,8 +110,6 @@ ggarrange(bx_plt, jitter_plt, ncol=2)
 
 ***Figure 2:*** Median wage ($1000) by major category. Major categories: [1]Biology & Life Science, [2]Computers & Mathematics, [3]Engineering, [4]Health, [5]Physical Sciences.  \newline
 
-\setlength\parindent{24pt} Here, the boxplot confirmed that *Engineering* contains an outlier (i.e. "Petroleum Engineering") as well as another outlier for "Astronomy and Astrophysics". Both fields have less women compared to men. This procedure showed that there may be a significant difference between median wage by major category. Thus, ANOVA was done to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA test done supports the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]) \< $\alpha=0.05$.
-
 \setlength\parindent{24pt} Then, after removing the columns `Major_code` and `Rank` from our data (which were irrelevant to this project), a scatterplot matrix was created, which revealed that there seemed to be a negative association between `ShareWomen` and `Median` Also, the plot showed that there may be an issue of multicollinearity among `Total`, `Men`, `Women`, and `ShareWomen`. This observation makes sense since the column `Total` consists of the sum of the columns `Men` and `Women`. Likewise, `ShareWomen` refers to the proportion of women within the fields (see Figure 3). \newline
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
@@ -126,7 +123,9 @@ ggpairs(dat2[,c(6,1:5)], c(1,3:6))
 
 ## c. Box Cox Transformation
 
-\setlength\parindent{24pt}        The column for median wage `Median` was select as the response variable. During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary for `Median` (see Figure 4).
+\setlength\parindent{24pt}        The column for median wage `Median` was select as the response variable. During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary for `Median` (see Figure 4). The resulting rounded power was -1, suggesting that an inverse transformation of the response `Median` wage is required to help with skewedness. However, this transformation would complicate the interpretability of the model.
+
+
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 lm_full <- lm(Median~.,data=dat2)
@@ -135,15 +134,24 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 
 ***Figure 4:*** Box-Cox with a negative one as a power. 
 
-The resulting rounded power was -1, suggesting that an inverse transformation of the response `Median` wage is required to help with skewedness. However, this transformation would complicate the interpretability of the model.
 
 # III. Methods and Results 
 
 ## a. Model Fitting
 
-\setlength\parindent{24pt}        The full addictive model is described by: $$Y = \beta_0 + \beta_{Major\_category} + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \epsilon$$ \setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process aimed to remove the predictor women because the p-value was large (p = 0.7394 \> $\alpha$ = 0.05).
+\setlength\parindent{24pt}        The full addictive model is described by: $$Y = \beta_0 + \beta_{Major\_category} + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \epsilon$$ 
 
-The final reduced model is described by: $\widehat{Median^{-1}}= (2.71 \times 10^{-5}) - (3.44 \times10^{-6}) Computers \& Mathematics - (8.87 \times 10^{-6}) Engineering - (3.99 \times 10^{-7}) Health - (3.09 \times10^{-6}) Physical Sciences - (4.14 \times 10^{-11})Men + (1.08 \times 10^{-6}) ShareWomen + (8.98 \times 10^{-11}) Men:ShareWomen$.
+\setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process aimed to remove the predictor women because the p-value was large (p = 0.7394 \> $\alpha$ = 0.05).
+
+The final reduced model is described by: 
+
+$\widehat{Median^{-1}}= (2.71 \times 10^{-5}) - (3.44 \times10^{-6}) \cdot Computers \& Mathematics - (8.87 \times 10^{-6}) \cdot Engineering -$ 
+
+
+
+\setlength\parindent{24pt}        $(3.99 \times 10^{-7}) \cdot Health - (3.09 \times10^{-6}) \cdot Physical Sciences - (4.14 \times 10^{-11}) \cdot Men +$
+
+\setlength\parindent{24pt}        $(1.08 \times 10^{-6}) \cdot ShareWomen + (8.98 \times 10^{-11}) \cdot Men:ShareWomen$.
 
 \normalsize
 
@@ -159,39 +167,36 @@ lm_reduced <- lm((Median^(-1)) ~ Major_category + Men + ShareWomen + Men:ShareWo
 
 ***Figure 5:*** Results of fitting the final model. \newline
 
-\setlength\parindent{24pt}Looking at the summary of model fitting (see Figure 5), we can see that we have an adjusted $R^2$ score of 0.5377, which means that roughly 53.77% of the variation in the inverse of `Median` can be explained by the model. While the score is not too low, it does indicate that in practical settings, the model still needs improvement.
-
-We can also see that the predictors `Men`, `ShareWomen`, and the interaction term `Men:ShareWomen` are not statistically significant at any significance level (given their p-values).
+\setlength\parindent{24pt}Looking at the summary of model fitting (see Figure 5), we can see that we have an adjusted $R^2$ score of 0.5377, which means that roughly 53.77% of the variation in the inverse of `Median` can be explained by the model. While the score is not too low, it does indicate that in practical settings, the model still needs improvement. We can also see that the predictors `Men`, `ShareWomen`, and the interaction term `Men:ShareWomen` are not statistically significant at any significance level (given their p-values).
 
 In addition, as noted earlier in the subsection **Box Cox Transformation** under the section **Data Description**, model interpretability would be difficult here due to the nature of the transformation. For example, looking at the coefficient for the variable `Major_categoryEngineering`, it can be interpreted to mean that if the major being examined is in the *Engineering* category (and all other predictors would be held constant), the intercept would decrease by roughly $8.866\times10^{-6}$ inverse dollars.
 
 ## b. Model Diagnostics
 
-\setlength\parindent{24pt}        To verify the results of the model, a plot of the standardized residuals against the model's fitted values was made in addition to a Q-Q plot of the standardized residuals (see Figure 6 below). \newline
+\setlength\parindent{24pt}        To verify the results of the model, a plot of the standardized residuals against the model's fitted values was made in addition to a Q-Q plot of the standardized residuals (see Figure 6 below). Here, in Figure 6, it can be seen on the left that the standardized residuals do not appear to have any discernible relationship with the final model's predicted values. After confirming this interpretation with the studentized Breusch-Pagan test (which gives us p=0.8582 \>$\alpha$ =0.05 ), it can be concluded that the assumption of constant variance for this data set holds up fairly well.
+
+\setlength\parindent{24pt} As for the Q-Q plot, although some of the data points seem to deviate from the Q-Q line at the tail ends of the data distribution, the standardized residuals do seen to follow the Q-Q line fairly well. To confirm this finding, the Shapiro-Wilk test was used, which gave this result - p=0.6165 \>$\alpha$ =0.05. Therefore, it can be concluded that the standardized residuals generally follow a normal distribution so the normality assumption holds up here as well.
+
+ 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, fig.height=3}
 # Standardized Residual vs Fitted plot
 stdresid_plt <- ggplot(mapping=aes(x=lm_reduced$fitted.values, 
                                    y=rstandard(lm_reduced))) + 
   geom_point() + labs(x="Fitted Values", y="Standardized Residuals") + 
-  geom_hline(yintercept=0) + labs(title="Residuals vs Fitted") + 
-  theme(plot.title = element_text(, size=17, hjust = 0.5)) + geom_smooth(se=F)
+  geom_hline(yintercept=0) #+ labs(title="Residuals vs Fitted") + 
+  #theme(plot.title = element_text(, size=17, hjust = 0.5)) + geom_smooth(se=F)
 
 # Normal QQ_plot
 norm_qqplt <- ggplot(mapping=aes(sample=rstandard(lm_reduced))) + stat_qq() + 
-  stat_qq_line() + labs(y="Sample Quantitles", x="Theoretical Quantiles",
-                       title="Normal Q-Q Plot") + 
-  theme(plot.title = element_text(size=17, hjust = 0.5))
+  stat_qq_line() + labs(y="Sample Quantitles", x="Theoretical Quantiles") #+ 
+  #theme(plot.title = element_text(size=17, hjust = 0.5))
 
 # Display the results
 ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 ```
 
 ***Figure 6:*** The residual plot (left) along with the Q-Q plot (right) for the final model. \newline
-
-\setlength\parindent{24pt} Here, in Figure 6, it can be seen on the left that the standardized residuals do not appear to have any discernible relationship with the final model's predicted values. After confirming this interpretation with the studentized Breusch-Pagan test (which gives us p=0.8582 \>$\alpha$ =0.05 ), it can be concluded that the assumption of constant variance for this data set holds up fairly well.
-
-\setlength\parindent{24pt} As for the Q-Q plot, although some of the data points seem to deviate from the Q-Q line at the tail ends of the data distribution, the standardized residuals do seen to follow the Q-Q line fairly well. To confirm this finding, the Shapiro-Wilk test was used, which gave this result - p=0.6165 \>$\alpha$ =0.05. Therefore, it can be concluded that the standardized residuals generally follow a normal distribution so the normality assumption holds up here as well.
 
 ## c. Model Prediction
 
