@@ -37,21 +37,35 @@ options(scipen = 100) # remove scientific notation
 
 # I. Introduction {#introduction style="h1, h2, h3 {   text-align: center; }"}
 
-\setlength\parindent{24pt}         Do gender-based social roles or top salary impact our choices of career paths? Although many countries, such as China, have incorporated women into their labor force and developed strong economies as a result, women still tend to choose careers that align more with gender stereotypes. Undeniably, the personality characteristics often associated with women are sympathy, kindness, and warmth, which all reflect a sense of concern towards other people. On the other hand, the traits frequently associated with men are achievement orientation and ambitiousness, which are concerned more with accomplishing tasks. These characteristics manifest themselves in the stereotypical association of men with the worker role and women with the family role.
+\setlength\parindent{24pt}         Do gender-based social roles or top salary impact our choices of career paths? Although many countries, such as China, have incorporated women into their labor force and developed strong economies as a result, women still tend to choose careers that align more with gender stereotypes.$^2$ Undeniably, the personality characteristics often associated with women are sympathy, kindness, and warmth, which all reflect a sense of concern towards other people. On the other hand, the traits frequently associated with men are achievement, orientation, and ambitiousness, which are concerned more with accomplishing tasks. These characteristics manifest themselves in the stereotypical association of men with the worker role and women with the family role.$^1$
 
-\setlength\parindent{24pt} In response to this gender bias, more schools are encouraging girls to enter STEM programs in addition to providing them with various resources to help them succeed in these types of careers. However, despite these efforts, women still tend to choose careers where the median pay is lower. Thus, our research question tries to find associations within STEM college majors that influence their median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
+\setlength\parindent{24pt} In response to this gender bias, more schools are encouraging girls to enter STEM programs in addition to providing them with various resources to help them succeed in these types of careers. However, despite these efforts, women still tend to choose careers where the median pay is lower. Thus, our research question aims to find associations within STEM college majors that influence their median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
+
 
 # II. Data Description {style="h1, h2, h3 {   text-align: center; }"}
 
 ## a. Data Overview
 
-\setlength\parindent{24pt}        The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and has been already subsetted to only have STEM majors (particularly with an interest in women majoring in STEM). For each row in the data set (which represents one major), there's a collection of details and statistics about the major, such as the type of major (i.e., Engineering, Health Science, etc.), the proportion of women in the sample of individuals working in that particular field, and other relevant pieces of information. Within the STEM majors, median wage ranges from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering (Mdn = $\$44350$, M = $\$46118$).
+\setlength\parindent{24pt}        The data was obtained from the American Community Survey 2010-2012 Public Use Microdata Series and is a subset which only contains STEM majors.  The data dimensions are **76 rows** (STEM majors) by **9 columns** (variables). The variables are: `Rank`, `Major_code`, `Major`, `Major_category`, `Total`, `Men`, `Women`, `ShareWomen`, and `Median`. Below are descriptions of each variable.
 
-\setlength\parindent{24pt} The data dimensions are seventy-six majors in STEM fields (rows) and nine factors (columns), such as: `Rank`, `Major_code`, `Major`, `Major_category`, `Total`, `Men`, `Women`, `ShareWomen`, and `Median`. For this project, `Major_category` was set as a factor to explore the variation of share of women within major categories and the median wages each major category earns.
+- `Median`: Median earnings of full-time, year-round workers
+- `Rank`: Rank by median earnings
+- `Major_code`: Major code, FO1DP in ACS PUMS
+- `Major`: Major description
+- `Major_category`: Category of major from Carnevale et al
+- `Total`: Total number of people with major
+- `Men`: Male graduates
+- `Women`:Female graduates
+- `ShareWomen`: Women as share of total
+
+
+ 
 
 ## b. Exploratory Data Analysis
 
-\setlength\parindent{24pt}        Through a stacked barplot of gender proportions per major category, the data showed that the biggest proportion of women chose fields related to *Health* and the biggest proportion of men chose fields related to *Engineering* (Figure 1). This is congruent with the gender roles and personality characteristics associated with women in addition to men. Along with the stacked barplot, a boxplot was generated to help identify outliers in median wages within the major categories (see Figure 2). \newline
+
+
+\setlength\parindent{24pt}        For this project, `Major_category` was set as a factor to explore the variation of share of women within major categories and the median wages each major category earns. Within the STEM majors, median wage ranges from $\$26,000$ for Zoology and $\$110,000$ for Petroleum Engineering (Mdn = $\$44350$, M = $\$46118$). Through a stacked barplot of gender proportions per major category, the data showed that the biggest proportion of women chose fields related to *Health* and the biggest proportion of men chose fields related to *Engineering* (Figure 1). This is congruent with the gender roles and personality characteristics associated with women in addition to men. Side-by-side boxplots of each major category were generated to show descriptive statistics such as the interquartile range and to help identify STEM majors which are outliers with regards to the `Median` variable (see Figure 2). \newline
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -78,7 +92,7 @@ dat_stats %>% ggplot(aes(x=Major_category,y=Proportion,fill=Sex)) +
 
 ***Figure 1:*** Gender proportions per major category.
 
-\setlength\parindent{24pt} Here, the boxplot confirmed that *Engineering* contains an outlier (i.e. "Petroleum Engineering") as well as another outlier for "Astronomy and Astrophysics". Both fields have less women compared to men. This procedure showed that there may be a significant difference between median wage by major category. Thus, ANOVA was done to test if there is actually at least one major category that its median wage is significantly different from the rest. The ANOVA test done supports the hypothesis with (F(4, 71) = [16.7], p-[0.00000001013]) \< $\alpha=0.05$.
+\setlength\parindent{24pt} From our side-by-side boxplots and jitterplots, we noticed that the *Engineering* major category contains an outlier, *Petroleum Engineering*, and another outlier, *Astronomy and Astrophysics*, can be found in the Physical Sciences major category. As seen in the jitter plot, *Petroleum Engineering* has a smaller proportion of women compared to men (`ShareWomen`= 0.121) with a median wage of $\$$110,000 (`Median`=110000). *Astronomy and Astrophysics* has a roughly balanced proportion of women compared to men (`ShareWomen`= 0.536) with a median wage of $\$$62,000 (`Median`=62000). These data visualizations illustrated that there may be a significant difference between median wage by major category, as well as an association between the proportion of women in the major and it's median wage. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -110,7 +124,7 @@ ggarrange(bx_plt, jitter_plt, ncol=2)
 
 ***Figure 2:*** Median wage ($1000) by major category. Major categories: [1]Biology & Life Science, [2]Computers & Mathematics, [3]Engineering, [4]Health, [5]Physical Sciences.  \newline
 
-\setlength\parindent{24pt} Then, after removing the columns `Major_code` and `Rank` from our data (which were irrelevant to this project), a scatterplot matrix was created, which revealed that there seemed to be a negative association between `ShareWomen` and `Median` Also, the plot showed that there may be an issue of multicollinearity among `Total`, `Men`, `Women`, and `ShareWomen`. This observation makes sense since the column `Total` consists of the sum of the columns `Men` and `Women`. Likewise, `ShareWomen` refers to the proportion of women within the fields (see Figure 3). \newline
+\setlength\parindent{24pt} Analysis of Variance (ANOVA) was done to test if there is a statistically significant difference between median wage for any of our five major categories. The ANOVA rejects our null hypothesis, given (F(4, 71) = [16.7], p-[0.00000001013]) \< $\alpha=0.05$, and we conclude that there is a difference between median wage per major category.  Since they are irrelevant to our analysis,the columns `Major_code` and `Rank` were removed from our dataset, then we generated a scatterplot matrix which revealed that there seemed to be a negative association between `ShareWomen` and `Median`. The scatterplot matrix also supports our assumption that there may be an issue of multicollinearity among `Total`, `Men`, `Women`, and `ShareWomen`. This observation makes sense since the column `Total` is the sum of the columns `Men` and `Women`. Likewise, `ShareWomen` refers to the ratio of `Women` to `Total`. \newline
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 ggpairs(dat2[,c(6,1:5)], c(1,3:6))
@@ -118,12 +132,12 @@ ggpairs(dat2[,c(6,1:5)], c(1,3:6))
 
 ```
 
-***Figure 3:*** Scatterplot matrix for correlation insights.
+***Figure 3:*** Scatterplot matrix.
 
 
 ## c. Box Cox Transformation
 
-\setlength\parindent{24pt}        The column for median wage `Median` was select as the response variable. During the process of checking normality, linearity, and constant variance, the data showed some skewing. Therefore, a Box-Cox test was performed to see if a transformation was necessary for `Median` (see Figure 4). The resulting rounded power was -1, suggesting that an inverse transformation of the response `Median` wage is required to help with skewedness. However, this transformation would complicate the interpretability of the model.
+\setlength\parindent{24pt}        The column for median wage `Median` was select as the response variable. While checking normality, linearity, and constant variance, we noticed the data showed some right skewing. Accordingly, a Box-Cox test was performed to see if a transformation was necessary for `Median` (see Figure 4). The resulting rounded power was -1, suggesting that an inverse transformation of the response `Median` wage was required to help with right-skewedness. However, this transformation would complicate the interpretability of the model.
 
 
 
@@ -139,9 +153,9 @@ boxcox(lm_full, lambda=seq(-2.5, 0.5, by =0.5))
 
 ## a. Model Fitting
 
-\setlength\parindent{24pt}        The full addictive model is described by: $$Y = \beta_0 + \beta_{Major\_category} + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \epsilon$$ 
+\setlength\parindent{24pt}        The full addictive model is described by: $$Y^{-1} = \beta_0 + \beta_{Major\_category} + \beta_{Total} + \beta_{Men} + \beta_{Women} + \beta_{ShareWomen} + \epsilon$$ 
 
-\setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process aimed to remove the predictor women because the p-value was large (p = 0.7394 \> $\alpha$ = 0.05).
+\setlength\parindent{24pt} Running this model through the step-wise function using AIC as our criterion, we ended up removing too many predictors; thus, it was decided to check for interactions to see if this new model would help with this issue. Then, a step-wise process was run to reduce the model's AIC. This process resulted in the removal of the predictor women because the $p-value= 0.7394 > \alpha = 0.05$.
 
 The final reduced model is described by: 
 
@@ -241,9 +255,9 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 
 # Bibliography 
 
-Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration*. 3rd ed., Pearson, 2013.
+1. Etaugh, Claire A., and Judith S. Bridges. *Women's Lives: A Psychological Exploration*. 3rd ed., Pearson, 2013.
 
-Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide*. Three Rivers Press, 2010.
+2. Kristof, Nicholas D. *Half the Sky: Turning Oppression into Opportunity for Women Worldwide*. Three Rivers Press, 2010.
 
 # Code Appendix 
 
