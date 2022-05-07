@@ -207,11 +207,56 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 
 ## c. Model Prediction
 
+```{r echo=FALSE, eval=FALSE}
+new_x<-data.frame(Major_category="Computers & Mathematics", Men=2960, ShareWomen=0.52647576
+)
+Median_Stats<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+
+Median_Stats
+```
+
+```{r echo=FALSE, eval=FALSE}
+new_x<-data.frame(Major_category="Biology & Life Sciences", Men=2960, ShareWomen=0.52647576
+)
+Median_Zoo<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+
+Median_Zoo
+```
+
+```{r echo=FALSE, eval=FALSE}
+new_x<-data.frame(Major_category="Computers & Mathematics", Men=2960, ShareWomen=0.52647576
+)
+Median_Pet<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+
+Median_Pet
+```
+
+```{r echo=FALSE, eval=FALSE}
+new_x<-data.frame(Major_category="Computers & Mathematics", Men=2960, ShareWomen=0.52647576
+)
+Median_Nurse<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+
+Median_Nurse
+```
+
+```{r echo=FALSE, eval=FALSE}
+new_x<-data.frame(Major_category="Computers & Mathematics", Men=2960, ShareWomen=0.52647576
+)
+Median_Astro<-predict(lm_reduced, newdata = new_x, type = "response", interval = "prediction")
+
+Median_Astro
+```
+
+
 \setlength\parindent{24pt}        To confirm that the goal of creating a predictive model for median wages was achieved, a prediction interval for (`Median`)$^{-1}$ for Statistics and Decision Sciences was run, giving a confidence interval of (30997,61595). To better understand the results, the inverse was taken to see the answer in the original units (see Table 1). \newline
 
-| **Major**                     | **Major Category**      | **Men** | **Share Women** | **Median** |
-|---------------|---------------|---------------|---------------|---------------|
-| Statistics & Decision Science | Computers & Mathematics | 2960    | 0.5265          | 45000      |
+| **Major**                     | **Major Category**      | **Men** | **Share Women** | **Median** |**Predicted Confidence Interval**|
+|---------------|---------------|---------------|---------------|---------------|---------------|
+| Statistics & Decision Science | Computers & Mathematics | 2960    | 0.5265          | 45000      |(30997,61595)|
+| Petroleum Engineering | Engineering | 2057    | 0.1206         | 110000      |(30997,61595)|
+| Zoology | Biology $ Life Sciences | 3050    | 0.6373          | 26000      |(30997,61595)|
+| Astronomy & Astrophysics | Physical Sciences | 832   | 0.5357          | 62000      |(30997,61595)|
+| Nursing | Health | 21773   | 0.8960          | 48000      |(30997,61595)|
 
 ***Table 1:***  ????. \newline
 
@@ -221,7 +266,7 @@ ggarrange(stdresid_plt, norm_qqplt, ncol=2)
 
 ## a. Summary of Results
 
-\setlength\parindent{24pt}        After the data analysis the results obtained supports that there is an association with gender and median wage in STEM majors. Since this is an association, we cannot assume that gender causes this difference. However, would be interesting to see more research done in experimental research to find the causation of this discrepancy in median wage and gender.
+\setlength\parindent{24pt}        After the data analysis, the obtained  results supports that there is an association with gender and median wage in STEM majors. Since this is an association, we cannot assume that gender causes this difference. However, it would be interesting to see more research done in experimental research to find the causation of this discrepancy in median wage and gender.
 
 Our final model has the capacity of predicting the median wage of STEM majors on the major category, total number of men in the major and total proportion of women in the major. We have tested our model in several fields, Statistics and Decision sciences as well as astrophysics.
 
