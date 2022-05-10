@@ -22,4 +22,4 @@ To address this problem, we used a subset of the College Majors dataset from Fiv
 
 # Video Presentation 
 
-R4DS Online Learning Community Ggplot2 Book Club; May 9th, 9am PT: https://www.youtube.com/watch?v=ihl-15wL7zY
+R4DS Online Learning Community Ggplot2 Book Club; May 9, 2022: https://www.youtube.com/watch?v=ihl-15wL7zY
