@@ -6,9 +6,12 @@ Undoubtedly, personality characteristics associated with women, are sympathy, ki
 
 More schools are encouraging girls to enter STEM programs and provided them with many resources to succeed in these types of careers. Despite these efforts, women tend to choose career where the median pay is lower.
 
+
 # Research Goals
 
 Our research question tries to find associations within STEM college majors that influence median wages. Our goals are to explore the data for STEM college majors and to create a predictive model for median wages.
+
+![](ShareWomen.png)
 
 # Dataset Used
 
